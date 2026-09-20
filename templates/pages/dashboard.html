@@ -1,0 +1,19 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Admin Dashboard</h2>
+    <div class="row g-4">
+        {% for label, count in data.items %}
+        <div class="col-md-4">
+            <div class="card border-primary h-100 shadow">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ label }}</h5>
+                    <p class="card-text display-6">{{ count }}</p>
+                    <a href="{% url 'admin:index' %}" class="btn btn-primary">Manage</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

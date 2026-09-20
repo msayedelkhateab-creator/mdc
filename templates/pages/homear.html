@@ -1,0 +1,134 @@
+{%extends 'parts/indexar.html'%}
+{% block content %}
+{% load static %}
+
+<body class="bg-light" dir="rtl">
+
+    <!-- Gradient Heading -->
+    <div class="container text-center">
+        <h1 class="mb-4" style="background: linear-gradient(to right, #007bff, #00c6ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            دليل خدمات الرعاية الطبية
+        </h1>
+    </div>
+
+    <!-- Carousel -->
+    <div id="consultationCarousel" class="carousel slide mb-5 px-3" data-bs-ride="carousel" style="height: 500px;">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#consultationCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="الشريحة 1"></button>
+            <button type="button" data-bs-target="#consultationCarousel" data-bs-slide-to="1" aria-label="الشريحة 2"></button>
+            <button type="button" data-bs-target="#consultationCarousel" data-bs-slide-to="2" aria-label="الشريحة 3"></button>
+        </div>
+
+        <div class="carousel-inner rounded shadow-sm" style="height: 500px;">
+            <div class="carousel-item active">
+                <img src="{% static 'cons.jpg' %}" class="d-block w-100 h-100 object-fit-cover" alt="استشارة 1">
+            </div>
+            <div class="carousel-item">
+                <img src="{% static 'cons2.jpg' %}" class="d-block w-100 h-100 object-fit-cover" alt="استشارة 2">
+            </div>
+            <div class="carousel-item">
+                <img src="{% static 'cons3.jpg' %}" class="d-block w-100 h-100 object-fit-cover" alt="استشارة 3">
+            </div>
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#consultationCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#consultationCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+
+    <!-- Healthcare Providers -->
+    <section class="container-fluid py-5 text-center">
+        <h2 class="mb-4">مزودي خدمات الرعاية الصحية</h2>
+        <div class="container">
+            <div class="row justify-content-center">
+
+                <!-- Card 1 -->
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'networkar' %}" class="text-decoration-none text-dark">
+                        <div class="card shadow-sm h-100">
+                            <img src="{% static 'logo.jpeg' %}" class="card-img-top" alt="بطاقة خصم ميدمارك" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">بطاقة خصم ميدمارك</h5>
+                                <button class="btn btn-primary w-100">عرض</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'edsar' %}" class="text-decoration-none text-dark">
+                        <div class="card shadow-sm h-100">
+                            <img src="{% static 'eds.jpg' %}" class="card-img-top" alt="الجمعية الدبلوماسية المصرية" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">الجمعية المصرية للدبلوماسيين</h5>
+                                <button class="btn btn-primary w-100">عرض</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'mofaar' %}" class="text-decoration-none text-dark">
+                        <div class="card shadow-sm h-100">
+                            <img src="{% static 'log.png' %}" class="card-img-top" alt="وزارة الخارجية - هوريزون" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">وزارة الخارجية - هوريزون</h5>
+                                <button class="btn btn-primary w-100">عرض</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'exxonar' %}" class="text-decoration-none text-dark">
+                        <div class="card shadow-sm h-100">
+                            <img src="{% static 'exxon2.png' %}" class="card-img-top" alt="شركة إكسون موبيل" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">شركة إكسون موبيل مصر</h5>
+                                <button class="btn btn-primary w-100">عرض</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'emfaar' %}" class="text-decoration-none text-dark">
+                        <div class="card shadow-sm h-100">
+                            <img src="{% static 'log.png' %}" class="card-img-top" alt="وزارة الخارجية - أليانز" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">وزارة الخارجية - أليانز</h5>
+                                <button class="btn btn-primary w-100">عرض</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'horizonar' %}" class="text-decoration-none text-dark">
+                        <div class="card shadow-sm h-100">
+                            <img src="{% static 'logo.jpeg' %}" class="card-img-top" alt="مجموعات هوريزون" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">ميدمارك - مجموعات هوريزون</h5>
+                                <button class="btn btn-primary w-100">عرض</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+{% endblock content %}

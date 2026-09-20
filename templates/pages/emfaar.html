@@ -1,0 +1,119 @@
+{% extends 'parts/indexar.html' %}
+{% block content %}
+{% load static %}
+
+<div class="container py-4">
+    <h1 class="text-center mb-4">شبكة مزودي خدمة EMFA الطبية</h1>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-12">
+            <input type="text" name="query" class="form-control" placeholder="بحث..." value="{{ request.GET.query }}" />
+        </div>
+
+        <div class="col-md-4">
+            <select name="governorate" class="form-select" id="governorate-select">
+                <option value="">جميع المحافظات</option>
+                {% for g in governorates %}
+                    <option value="{{ g }}" {% if request.GET.governorate == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <select name="area" class="form-select" id="area-select">
+                <option value="">جميع المناطق</option>
+                {% for a in areas %}
+                    <option value="{{ a }}" {% if request.GET.area == a %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <select name="type" class="form-select" id="type-select">
+                <option value="">جميع الأنواع</option>
+                {% for t in types %}
+                    <option value="{{ t }}" {% if request.GET.type == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12 text-end">
+            <button type="submit" class="btn btn-primary">تصفية</button>
+            <a href="{% url 'emfaar' %}" class="btn btn-secondary">إعادة ضبط</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>المحافظة</th>
+                    <th>المنطقة</th>
+                    <th>النوع</th>
+                    <th>التخصص</th>
+                    <th>المزود</th>
+                    <th>العنوان</th>
+                    <th>الهاتف</th>
+                    <th>الموقع</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for network in networks %}
+                    <tr>
+                        <td>{{ network.governorate }}</td>
+                        <td>{{ network.area }}</td>
+                        <td>{{ network.type }}</td>
+                        <td>{{ network.speciality }}</td>
+                        <td>{{ network.provider }}</td>
+                        <td>{{ network.address }}</td>
+                        <td>{{ network.phone }}</td>
+                        <td>{% if network.website %}{{ network.website }}{% else %}N/A{% endif %}</td>
+                        <td>{% if network.email %}{{ network.email }}{% else %}N/A{% endif %}</td>
+                        <td>{{ network.notes|default:"-" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="10" class="text-muted">لا يوجد مزودين.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(function(){
+        $('#governorate-select').change(function(){
+            var governorate = $(this).val();
+            $.ajax({
+                url: "{% url 'get_areas_emfaar' %}",
+                data: {governorate: governorate},
+                success: function(data){
+                    var areaSelect = $('#area-select');
+                    areaSelect.empty().append('<option value="">جميع المناطق</option>');
+                    $.each(data.areas, function(i, area){
+                        areaSelect.append($('<option>').val(area).text(area));
+                    });
+                    $('#type-select').empty().append('<option value="">جميع الأنواع</option>');
+                }
+            });
+        });
+
+        $('#area-select').change(function(){
+            var area = $(this).val();
+            $.ajax({
+                url: "{% url 'get_types_emfaar' %}",
+                data: {area: area},
+                success: function(data){
+                    var typeSelect = $('#type-select');
+                    typeSelect.empty().append('<option value="">جميع الأنواع</option>');
+                    $.each(data.types, function(i, type){
+                        typeSelect.append($('<option>').val(type).text(type));
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

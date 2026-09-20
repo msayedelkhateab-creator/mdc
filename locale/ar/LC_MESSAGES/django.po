@@ -1,0 +1,84 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-30 23:58+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+#: .\templates\pages\home.html:15
+msgid "Welcome to the Medical Services Guide"
+msgstr "مرحباً بكم فى دليل الرعاية الطبية "
+
+#: .\templates\pages\home.html:21
+msgid "Healthcare Providers"
+msgstr "الشبكة الطبية"
+
+#: .\templates\pages\home.html:29 .\templates\pages\home.html:31
+msgid "Medmark Discount Card"
+msgstr "كارت خصومات ميدمارك"
+
+#: .\templates\pages\home.html:32 .\templates\pages\home.html:45
+#: .\templates\pages\home.html:58 .\templates\pages\home.html:71
+#: .\templates\pages\home.html:84 .\templates\pages\home.html:97
+msgid "View"
+msgstr "اعرض"
+
+#: .\templates\pages\home.html:42 .\templates\pages\home.html:44
+msgid "Egyptian Diplomatic Society"
+msgstr "جمعية الدبلوماسيين المصريين"
+
+#: .\templates\pages\home.html:55
+msgid "Ministry of Foreign Affairs - Horizon"
+msgstr ""
+
+#: .\templates\pages\home.html:57
+msgid "MOFA - Horizon"
+msgstr ""
+
+#: .\templates\pages\home.html:68
+msgid "EXXON MOBIL Co"
+msgstr ""
+
+#: .\templates\pages\home.html:70
+msgid "Exxon Mobil Egypt"
+msgstr ""
+
+#: .\templates\pages\home.html:81
+msgid "Ministry of Foreign Affairs - Allianz"
+msgstr ""
+
+#: .\templates\pages\home.html:83
+msgid "MOFA - Allianz"
+msgstr ""
+
+#: .\templates\pages\home.html:94
+msgid "Horizon Groups"
+msgstr ""
+
+#: .\templates\pages\home.html:96
+msgid "medmark Horizon Groups"
+msgstr ""
+
+#: .\templates\parts\navbar.html:7
+msgid "Medical Services Guide"
+msgstr "دليل الرعاية الطبية "
+
+#: .\templates\parts\navbar.html:76
+msgid "Logo"
+msgstr ""
+
+#: .\templates\parts\navbar.html:93
+msgid "Important announcements ticker"
+msgstr ""

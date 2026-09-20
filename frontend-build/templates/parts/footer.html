@@ -1,0 +1,19 @@
+{%load static%}
+<footer class="bg-white text-center text-lg-start border-top mt-5">
+  <div class="container p-4">
+    <div class="row align-items-center">
+
+      <!-- Links -->
+      <div class="col-12 mb-3 d-flex flex-column align-items-right">
+        <a href="{%url 'about'%}" class="text-decoration-none me-3 text-dark">About Us</a>
+        <a href="{%url 'contact'%}" class="text-decoration-none text-dark">Contact Us</a>
+      </div>
+
+      <!-- Image -->
+      <div class="col-md-12">
+        <img src="{% static 'footer.jpg' %}" alt="Logo" style="height: 200px;width:1100px;">
+      </div>
+
+    </div>
+  </div>
+</footer>

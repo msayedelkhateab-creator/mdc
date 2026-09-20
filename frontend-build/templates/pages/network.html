@@ -1,0 +1,125 @@
+{%extends 'index.html'%}
+{%block content%}
+{%load static%}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Network</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Add padding and margin to make the page less close to the borders */
+        body {
+            padding: 20px;
+        }
+        .container {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        .table {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="container">
+        <h1 class="text-center mb-4">Medical Service Network</h1>
+
+        <!-- Filters -->
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-12">
+    <input type="text" name="query" class="form-control" placeholder="Search anything..." value="{{ request.GET.query }}">
+</div>
+            <div class="col-md-4">
+                <select name="governorate" class="form-select">
+                    <option value="">All Governorates</option>
+                    {% for g in governorates %}
+                        <option value="{{ g }}" {% if request.GET.governorate == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="area" class="form-select">
+                    <option value="">All Areas</option>
+                    {% for a in areas %}
+                        <option value="{{ a }}" {% if request.GET.area == a %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for t in types %}
+                        <option value="{{ t }}" {% if request.GET.type == t %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{% url 'network' %}" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Governorate</th>
+                        <th>Area</th>
+                        <th>Type</th>
+                        <th>Speciality</th>
+                        <th>Provider</th>
+                        <th>Discount</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Website</th>
+                        <th>Email</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for network in networks %}
+                    <tr>
+                        <td>{{ network.governorate }}</td>
+                        <td>{{ network.area }}</td>
+                        <td>{{ network.type }}</td>
+                        <td>{{ network.speciality }}</td>
+                        <td>{{ network.provider }}</td>
+                        <td>{{ network.discount }}</td>
+                        <td>{{ network.address }}</td>
+                        <td>{{ network.phone }}</td>
+                        <td>
+                            {% if network.website %}
+                            {{ network.website }}
+                            {% else %} N/A {% endif %}
+                        </td>
+                        <td>
+                            {% if network.email %}
+                            {{ network.email }}
+                            {% else %} N/A {% endif %}
+                        </td>
+                        <td>{{ network.notes|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="11" class="text-muted">No providers found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (optional for dropdowns etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+{%endblock content%}

@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>طلب موافقة مسبقة</h2>
+  {% if success %}
+    <div class="alert alert-success">
+      تم إرسال البيانات بنجاح. الرقم المرجعي الخاص بك: <strong>{{ reference }}</strong>
+    </div>
+  {% endif %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">إرسال</button>
+  </form>
+</div>
+{% endblock %}

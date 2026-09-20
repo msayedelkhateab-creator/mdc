@@ -1,0 +1,230 @@
+{% extends 'index.html' %}
+{% block content %}
+{% load static %}
+<html lang="{{ language }}" dir="{% if language == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if language == 'ar' %}الشبكة الطبية{% else %}Medical Network{% endif %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .container { padding-left: 20px; padding-right: 20px; }
+        .table { margin-top: 20px; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container">
+    <h1 class="text-center mb-4">
+        {% if language == 'ar' %}الشبكة الطبية{% else %}Medical Providers Network{% endif %}
+    </h1>
+
+    <!-- Filters -->
+    <form method="get" class="row g-3 mb-4" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+        <div class="col-md-12">
+            <input type="text" name="query" class="form-control"
+                   placeholder="{% if LANGUAGE_CODE == 'ar' %}بحث عام...{% else %}Search anything...{% endif %}"
+                   value="{{ request.GET.query }}">
+        </div>
+        <div class="col-md-4">
+            <select name="governorate" class="form-select">
+                <option value="">{% if LANGUAGE_CODE == 'ar' %}كل المحافظات{% else %}All Governorates{% endif %}</option>
+                {% for g in governorates %}
+                    <option value="{{ g }}" {% if request.GET.governorate == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select name="area" class="form-select">
+                <option value="">{% if LANGUAGE_CODE == 'ar' %}كل المناطق{% else %}All Areas{% endif %}</option>
+                {% for a in areas %}
+                    <option value="{{ a }}" {% if request.GET.area == a %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select name="type" class="form-select">
+                <option value="">{% if LANGUAGE_CODE == 'ar' %}كل التخصصات{% else %}All Types{% endif %}</option>
+                {% for t in types %}
+                    <option value="{{ t }}" {% if request.GET.type == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12 {% if LANGUAGE_CODE == 'ar' %}text-end{% else %}text-start{% endif %}">
+            <button type="submit" class="btn btn-primary">
+                {% if LANGUAGE_CODE == 'ar' %}تصفية{% else %}Filter{% endif %}
+            </button>
+            <a href="{% url 'exxon' %}" class="btn btn-secondary">
+                {% if LANGUAGE_CODE == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
+            </a>
+        </div>
+    </form>
+
+    <!-- Table -->
+    <div class="table-responsive" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+        <table class="table table-bordered table-hover table-striped align-middle text-center" style="table-layout: fixed; width: 100%;">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 100px;">{% if language == 'ar' %}المحافظة{% else %}Governorate{% endif %}</th>
+                    <th style="width: 100px;">{% if language == 'ar' %}المنطقة{% else %}Area{% endif %}</th>
+                    <th style="width: 200px;">{% if language == 'ar' %}النوع{% else %}Type{% endif %}</th>
+                    <th style="width: 200px;">{% if language == 'ar' %}التخصص{% else %}Speciality{% endif %}</th>
+                    <th style="width: 150px;">{% if language == 'ar' %}مقدم الخدمة{% else %}Provider{% endif %}</th>
+                    <th style="width: 400px;">{% if language == 'ar' %}العنوان{% else %}Address{% endif %}</th>
+                    <th style="width: 200px;">{% if language == 'ar' %}الهاتف{% else %}Phone{% endif %}</th>
+                    <th style="width: 210px;">Website</th>
+                    <th style="width: 210px;">Email</th>
+                    <th style="width: 100px;">{% if language == 'ar' %}ملاحظات{% else %}Notes{% endif %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for network in networks %}
+                <tr class="table-row" style="cursor:pointer;"
+                    data-governorate="{{ network.governorate }}"
+                    data-governorate-ar="{{ network.governorate_ar }}"
+                    data-area="{{ network.area }}"
+                    data-area-ar="{{ network.area_ar }}"
+                    data-type="{{ network.type }}"
+                    data-type-ar="{{ network.type_ar }}"
+                    data-speciality="{{ network.speciality }}"
+                    data-speciality-ar="{{ network.speciality_ar }}"
+                    data-provider="{{ network.provider }}"
+                    data-provider-ar="{{ network.provider_ar }}"
+                    data-address="{{ network.address }}"
+                    data-address-ar="{{ network.address_ar }}"
+                    data-phone="{{ network.phone }}"
+                    data-website="{{ network.website|default:'N/A' }}"
+                    data-email="{{ network.email|default:'N/A' }}"
+                    data-notes="{{ network.notes }}"
+                    data-notes-ar="{{ network.notes_ar|default:'-' }}">
+                    <td>{% if language == 'en' %}{{ network.governorate }}{% else %}{{ network.governorate_ar }}{% endif %}</td>
+                    <td>{% if language == 'en' %}{{ network.area }}{% else %}{{ network.area_ar }}{% endif %}</td>
+                    <td>{% if language == 'en' %}{{ network.type }}{% else %}{{ network.type_ar }}{% endif %}</td>
+                    <td>{% if language == 'en' %}{{ network.speciality }}{% else %}{{ network.speciality_ar }}{% endif %}</td>
+                    <td>{% if language == 'en' %}{{ network.provider }}{% else %}{{ network.provider_ar }}{% endif %}</td>
+                    <td>{% if language == 'en' %}{{ network.address }}{% else %}{{ network.address_ar }}{% endif %}</td>
+                    <td>{{ network.phone }}</td>
+                    <td>{{ network.website|default:"N/A" }}</td>
+                    <td>{{ network.email|default:"N/A" }}</td>
+                    <td>{% if language == 'en' %}{{ network.notes }}{% else %}{{ network.notes_ar|default:"-" }}{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="11" class="text-muted text-center">
+                        {% if language == 'ar' %}لا يوجد نتائج{% else %}No providers found.{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="mt-4 d-flex justify-content-center" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">
+                        {% if language == 'ar' %}السابق{% else %}Previous{% endif %}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% if query_string %}&{{ query_string }}{% endif %}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">
+                        {% if language == 'ar' %}التالي{% else %}Next{% endif %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}" id="providerModal" tabindex="-1" aria-labelledby="providerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-center w-100" id="providerModalLabel">
+                    {% if language == 'ar' %}تفاصيل مقدم الخدمة{% else %}Provider Details{% endif %}
+                </h5>
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Dynamic content via JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('select').select2();
+
+        $('select[name="governorate"]').change(function () {
+            let selectedGovernorate = $(this).val();
+            $.ajax({
+                url: "{% url 'get_areas_exxon' %}",
+                data: { 'governorate': selectedGovernorate },
+                success: function (data) {
+                    let areaSelect = $('select[name="area"]');
+                    areaSelect.empty().append(`<option value="">{% if language == 'ar' %}كل المناطق{% else %}All Areas{% endif %}</option>`);
+                    data.areas.forEach(area => areaSelect.append(`<option value="${area}">${area}</option>`));
+                    areaSelect.trigger('change.select2');
+                }
+            });
+        });
+
+        $('select[name="area"]').change(function () {
+            let selectedArea = $(this).val();
+            $.ajax({
+                url: "{% url 'get_types_exxon' %}",
+                data: { 'area': selectedArea },
+                success: function (data) {
+                    let typeSelect = $('select[name="type"]');
+                    typeSelect.empty().append(`<option value="">{% if language == 'ar' %}كل التخصصات{% else %}All Types{% endif %}</option>`);
+                    data.types.forEach(type => typeSelect.append(`<option value="${type}">${type}</option>`));
+                    typeSelect.trigger('change.select2');
+                }
+            });
+        });
+
+        $(".table-row").on("click", function () {
+            let lang = "{{ language }}";
+            let modalContent = `
+                <div class="container">
+                    <div class="row mb-2"><strong>${lang === 'ar' ? 'المحافظة' : 'Governorate'}:</strong> ${lang === 'ar' ? $(this).data("governorate-ar") : $(this).data("governorate")}</div>
+                    <div class="row mb-2"><strong>${lang === 'ar' ? 'المنطقة' : 'Area'}:</strong> ${lang === 'ar' ? $(this).data("area-ar") : $(this).data("area")}</div>
+                    <div class="row mb-2"><strong>${lang === 'ar' ? 'النوع' : 'Type'}:</strong> ${lang === 'ar' ? $(this).data("type-ar") : $(this).data("type")}</div>
+                    <div class="row mb-2"><strong>${lang === 'ar' ? 'التخصص' : 'Speciality'}:</strong> ${lang === 'ar' ? $(this).data("speciality-ar") : $(this).data("speciality")}</div>
+                    <div class="row mb-2"><strong>${lang === 'ar' ? 'المقدم' : 'Provider'}:</strong> ${lang === 'ar' ? $(this).data("provider-ar") : $(this).data("provider")}</div>
+                    <div class="row mb-2"><strong>${lang === 'ar' ? 'العنوان' : 'Address'}:</strong> ${lang === 'ar' ? $(this).data("address-ar") : $(this).data("address")}</div>
+                    <div class="row mb-2"><strong>${lang === 'ar' ? 'الهاتف' : 'Phone'}:</strong> ${$(this).data("phone")}</div>
+                    <div class="row mb-2"><strong>Website:</strong> ${$(this).data("website")}</div>
+                    <div class="row mb-2"><strong>Email:</strong> ${$(this).data("email")}</div>
+                    <div class="row mb-2"><strong>${lang === 'ar' ? 'ملاحظات' : 'Notes'}:</strong> ${lang === 'ar' ? $(this).data("notes-ar") : $(this).data("notes")}</div>
+                </div>`;
+            $("#modalContent").html(modalContent);
+            $("#providerModal").modal("show");
+        });
+    });
+</script>
+
+</body>
+</html>
+{% endblock %}

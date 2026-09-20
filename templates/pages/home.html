@@ -1,0 +1,594 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+<style>
+    :root {
+        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-blue: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --gradient-pink: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ========== Animated Background ========== */
+    .home-container {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+    }
+
+    .bg-shapes {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .floating-shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.08;
+        animation: float-shape 25s infinite ease-in-out;
+    }
+
+    .shape-1 {
+        width: 400px;
+        height: 400px;
+        background: var(--gradient-primary);
+        top: -100px;
+        left: -150px;
+        animation-delay: 0s;
+    }
+
+    .shape-2 {
+        width: 300px;
+        height: 300px;
+        background: var(--gradient-blue);
+        top: 40%;
+        right: -100px;
+        animation-delay: 8s;
+    }
+
+    .shape-3 {
+        width: 350px;
+        height: 350px;
+        background: var(--gradient-pink);
+        bottom: -100px;
+        left: 40%;
+        animation-delay: 16s;
+    }
+
+    @keyframes float-shape {
+        0%, 100% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+        }
+        33% {
+            transform: translate(80px, -80px) rotate(120deg) scale(1.1);
+        }
+        66% {
+            transform: translate(-80px, 80px) rotate(240deg) scale(0.9);
+        }
+    }
+
+    /* ========== Hero Section ========== */
+    .hero-section {
+        padding: 4rem 0 3rem;
+        text-align: center;
+        animation: fadeInDown 0.8s ease;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+        position: relative;
+        display: inline-block;
+    }
+
+    .hero-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 5px;
+        background: var(--gradient-primary);
+        border-radius: 3px;
+        opacity: 0.3;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: #64748b;
+        font-weight: 500;
+        margin-top: 2rem;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ========== Providers Section ========== */
+    .providers-section {
+        padding: 3rem 0 5rem;
+    }
+
+    .section-title {
+        font-size: 3rem;
+        font-weight: 800;
+        background: var(--gradient-blue);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+        margin-bottom: 4rem;
+        position: relative;
+        animation: fadeInUp 1s ease;
+    }
+
+    .section-title::before {
+        content: '🏥';
+        position: absolute;
+        left: 50%;
+        top: -50px;
+        transform: translateX(-50%);
+        font-size: 3rem;
+        animation: bounce 2s infinite;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 5px;
+        background: var(--gradient-blue);
+        border-radius: 3px;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-10px); }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ========== Enhanced Cards ========== */
+    .card-wrapper {
+        text-decoration: none;
+        display: block;
+        height: 100%;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-wrapper:hover {
+        transform: translateY(-15px);
+    }
+
+    .provider-card {
+        border: none;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: var(--shadow-card);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: white;
+        height: 100%;
+        position: relative;
+        animation: cardFadeIn 0.6s ease forwards;
+        opacity: 0;
+    }
+
+    /* Staggered animation delays */
+    .col-md-4:nth-child(1) .provider-card { animation-delay: 0.1s; }
+    .col-md-4:nth-child(2) .provider-card { animation-delay: 0.2s; }
+    .col-md-4:nth-child(3) .provider-card { animation-delay: 0.3s; }
+    .col-md-4:nth-child(4) .provider-card { animation-delay: 0.4s; }
+    .col-md-4:nth-child(5) .provider-card { animation-delay: 0.5s; }
+    .col-md-4:nth-child(6) .provider-card { animation-delay: 0.6s; }
+
+    @keyframes cardFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Gradient accent on top */
+    .provider-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: var(--gradient-primary);
+        transform: scaleX(0);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-wrapper:hover .provider-card {
+        box-shadow: var(--shadow-hover);
+    }
+
+    .card-wrapper:hover .provider-card::before {
+        transform: scaleX(1);
+    }
+
+    /* Card Image */
+    .card-img-wrapper {
+        overflow: hidden;
+        height: 240px;
+        position: relative;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .provider-card .card-img-top {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-wrapper:hover .card-img-top {
+        transform: scale(1.15) rotate(2deg);
+    }
+
+    /* Card overlay effect */
+    .card-img-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.05) 100%);
+        pointer-events: none;
+    }
+
+    /* Card Body */
+    .provider-card .card-body {
+        padding: 2rem 1.5rem;
+        text-align: center;
+    }
+
+    .provider-card .card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.8rem;
+        min-height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.3s ease;
+    }
+
+    .card-wrapper:hover .card-title {
+        color: #667eea;
+    }
+
+    /* Enhanced Button */
+    .btn-view {
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 50px;
+        padding: 0.9rem 2.8rem;
+        font-weight: 700;
+        color: white;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.95rem;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-view::before {
+        content: '→';
+        position: absolute;
+        right: 20px;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-wrapper:hover .btn-view {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+        padding-right: 3.5rem;
+    }
+
+    .card-wrapper:hover .btn-view::before {
+        opacity: 1;
+        right: 25px;
+    }
+
+    /* Ripple effect */
+    .btn-view::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .card-wrapper:hover .btn-view::after {
+        width: 300px;
+        height: 300px;
+    }
+
+    /* ========== Responsive Design ========== */
+    @media (max-width: 992px) {
+        .hero-title {
+            font-size: 2.8rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+        }
+
+        .card-img-wrapper {
+            height: 220px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.2rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .section-title::before {
+            top: -40px;
+            font-size: 2.5rem;
+        }
+
+        .card-img-wrapper {
+            height: 200px;
+        }
+
+        .provider-card .card-title {
+            font-size: 1.15rem;
+            min-height: auto;
+        }
+
+        .btn-view {
+            padding: 0.8rem 2.2rem;
+            font-size: 0.9rem;
+        }
+
+        .floating-shape {
+            opacity: 0.05;
+        }
+
+        .shape-1 {
+            width: 250px;
+            height: 250px;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+        }
+
+        .shape-3 {
+            width: 220px;
+            height: 220px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-title {
+            font-size: 1.8rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.7rem;
+        }
+
+        .providers-section {
+            padding: 2rem 0 3rem;
+        }
+    }
+
+    /* RTL Support */
+    html[dir="rtl"] .btn-view::before {
+        content: '←';
+        right: auto;
+        left: 20px;
+    }
+
+    html[dir="rtl"] .card-wrapper:hover .btn-view {
+        padding-right: 2.8rem;
+        padding-left: 3.5rem;
+    }
+
+    html[dir="rtl"] .card-wrapper:hover .btn-view::before {
+        right: auto;
+        left: 25px;
+    }
+
+    html[dir="rtl"] .card-wrapper:hover .card-img-top {
+        transform: scale(1.15) rotate(-2deg);
+    }
+
+</style>
+
+<!-- Main Container -->
+<div class="home-container">
+
+    <!-- Animated Background Shapes -->
+    <div class="bg-shapes">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">
+                {% trans "Welcome to the Medical Services Guide" %}
+            </h1>
+            <p class="hero-subtitle">
+                {% trans "Your trusted partner for comprehensive healthcare solutions" %}
+            </p>
+        </div>
+    </section>
+
+    <!-- Healthcare Providers Section -->
+    <section class="providers-section">
+        <div class="container">
+            <h2 class="section-title">{% trans "Healthcare Providers" %}</h2>
+
+            <div class="row justify-content-center g-4">
+
+                <!-- Card 1: Medmark Discount Card -->
+                <div class="col-lg-4 col-md-6">
+                    <a href="{% url 'network' %}" class="card-wrapper">
+                        <div class="provider-card">
+                            <div class="card-img-wrapper">
+                                <img src="{% static 'discountcard.png' %}" class="card-img-top" alt="{% trans 'Medmark Discount Card' %}">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{% trans "Medmark Discount Card" %}</h5>
+                                <button class="btn btn-view w-100">{% trans "View" %}</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 2: MOFA - Horizon -->
+                <div class="col-lg-4 col-md-6">
+                    <a href="{% url 'mofa' %}" class="card-wrapper">
+                        <div class="provider-card">
+                            <div class="card-img-wrapper">
+                                <img src="{% static 'log.png' %}" class="card-img-top" alt="{% trans 'Ministry of Foreign Affairs - Horizon' %}">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{% trans "MOFA - Horizon" %}</h5>
+                                <button class="btn btn-view w-100">{% trans "View" %}</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 3: Exxon Mobil Egypt -->
+                <div class="col-lg-4 col-md-6">
+                    <a href="{% url 'exxon' %}" class="card-wrapper">
+                        <div class="provider-card">
+                            <div class="card-img-wrapper">
+                                <img src="{% static 'exxon2.png' %}" class="card-img-top" alt="{% trans 'EXXON MOBIL Co' %}">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{% trans "Exxon Mobil Egypt" %}</h5>
+                                <button class="btn btn-view w-100">{% trans "View" %}</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 4: EMFA - Allianz -->
+                <div class="col-lg-4 col-md-6">
+                    <a href="{% url 'emfa' %}" class="card-wrapper">
+                        <div class="provider-card">
+                            <div class="card-img-wrapper">
+                                <img src="{% static 'log.png' %}" class="card-img-top" alt="{% trans 'Ministry of Foreign Affairs - Allianz' %}">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{% trans "EMFA - MGEN" %}</h5>
+                                <button class="btn btn-view w-100">{% trans "View" %}</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 5: medmark Horizon Groups -->
+                <div class="col-lg-4 col-md-6">
+                    <a href="{% url 'horizon' %}" class="card-wrapper">
+                        <div class="provider-card">
+                            <div class="card-img-wrapper">
+                                <img src="{% static 'horizonlocal.png' %}" class="card-img-top" alt="{% trans 'Horizon Groups' %}">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{% trans "Horizon Local Insurance" %}</h5>
+                                <button class="btn btn-view w-100">{% trans "View" %}</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 6: Horizon Global Insurance -->
+                <div class="col-lg-4 col-md-6">
+                    <a href="{% url 'horizon_global_network' %}" class="card-wrapper">
+                        <div class="provider-card">
+                            <div class="card-img-wrapper" >
+
+                                <img src="{% static 'horizonglobal.png' %}" class="card-img-top" alt="{% trans 'Horizon Global Insurance' %}">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{% trans "Horizon Global Insurance" %}</h5>
+                                <button class="btn btn-view w-100">{% trans "View" %}</button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</div>
+
+{% endblock content %}

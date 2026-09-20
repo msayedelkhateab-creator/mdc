@@ -1,0 +1,129 @@
+{% extends 'index.html' %}
+{% load static i18n %}
+{% block content %}
+
+<div class="container py-5" lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+
+  <!-- Heading -->
+  <div class="text-center mb-5">
+    <h2 class="fw-bold">{% trans "Contact Us" %}</h2>
+    <p class="text-muted">{% trans "We are here to help you 24/7" %}</p>
+  </div>
+
+  <!-- Hotline Card (Full Width) -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body text-center">
+      <div class="mb-3">
+        <i class="bi bi-telephone-fill text-danger" style="font-size: 2.5rem;"></i>
+      </div>
+      <h3 class="card-title fw-semibold">{% trans "Hotline" %}</h3>
+      <p class="card-text fs-5">19247</p>
+      <h5 class="text-secondary mt-3">{% trans "Emergency" %}</h5>
+      <p class="card-text fs-6">01222109494</p>
+    </div>
+  </div>
+
+  <!-- Other Contact Cards Row -->
+  <div class="row g-4">
+
+    <!-- Preauthorization Requests -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm text-center">
+        <div class="card-body d-flex flex-column align-items-center">
+          <i class="bi bi-envelope-fill text-primary mb-3" style="font-size: 2.5rem;"></i>
+          <h5 class="card-title fw-semibold">{% trans "Preauthorization Requests" %}</h5>
+          <a href="mailto:preauthorization@medmark.eg" class="mt-auto text-primary text-decoration-none">
+            preauthorization@medmark.eg
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Claim Requests -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm text-center">
+        <div class="card-body d-flex flex-column align-items-center">
+          <i class="bi bi-file-earmark-text-fill text-purple mb-3" style="font-size: 2.5rem; color: #6f42c1;"></i>
+          <h5 class="card-title fw-semibold">{% trans "New Claim Requests" %}</h5>
+          <a href="mailto:claims@medmark.eg" class="mt-auto text-primary text-decoration-none">
+            claims@medmark.eg
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- General Inquiries / Follow-up -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm text-center">
+        <div class="card-body d-flex flex-column align-items-center">
+          <i class="bi bi-info-circle-fill text-success mb-3" style="font-size: 2.5rem;"></i>
+          <h5 class="card-title fw-semibold">{% trans "General Inquiries" %}</h5>
+          <a href="mailto:mcc@medmark.eg" class="mt-auto text-primary text-decoration-none">
+            mcc@medmark.eg
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="my-5">
+
+  <!-- Visit Us -->
+  <h3 class="text-center fw-bold mb-4">{% trans "Visit Us" %}</h3>
+
+  <div class="row g-4 text-center">
+
+    <!-- Mohandessin Office -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <i class="bi bi-building text-indigo mb-3" style="font-size: 2.5rem; color: #6610f2;"></i>
+          <h5 class="card-title fw-semibold">{% trans "Mohandessin Office" %}</h5>
+          <p class="card-text mt-2">
+            <strong>{% trans "Address" %}:</strong> {% trans "9 Tanta Street, Off of Aswan Square" %}
+          </p>
+          <a href="https://maps.app.goo.gl/Z3xTam55ST6RU5CYA" target="_blank" class="text-success text-decoration-none">
+            {% trans "Open in Google Maps" %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Heliopolis Office -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <i class="bi bi-building text-indigo mb-3" style="font-size: 2.5rem; color: #6610f2;"></i>
+          <h5 class="card-title fw-semibold">{% trans "Heliopolis Office" %}</h5>
+          <p class="card-text mt-2">
+            <strong>{% trans "Address" %}:</strong> {% trans "97 Omar Ibn El Khattab Street" %}
+          </p>
+          <a href="https://maps.app.goo.gl/kjQsEg95MMqfs7P7A" target="_blank" class="text-success text-decoration-none">
+            {% trans "Open in Google Maps" %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alexandria Office -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <i class="bi bi-building text-indigo mb-3" style="font-size: 2.5rem; color: #6610f2;"></i>
+          <h5 class="card-title fw-semibold">{% trans "Alexandria Office" %}</h5>
+          <p class="card-text mt-2">
+            <strong>{% trans "Address" %}:</strong> {% trans "401 Al Horya square - Mostafa Kamel" %}
+          </p>
+          <a href="https://maps.app.goo.gl/bryYeCR9RVH3W8qbA" target="_blank" class="text-success text-decoration-none">
+            {% trans "Open in Google Maps" %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

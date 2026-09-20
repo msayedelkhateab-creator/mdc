@@ -1,0 +1,39 @@
+{% extends 'index.html' %}
+{% block content %}
+{% load static %}
+
+<body class="bg-light">
+
+    <div class="container text-center">
+        <h1 class="mb-4">Welcome to the Medical Services Guide</h1>
+    </div>
+
+    <!-- Section: How We Can Help You -->
+    <section class="container py-5 text-center">
+        <h2 class="mb-4">How We Can Help You</h2>
+
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'network' %}" class="text-decoration-none">
+                <div class="card shadow-sm" style="width: 18rem;">
+                    <img src="{% static 'provider.jpg' %}" class="card-img-top" alt="Healthcare Providers">
+                    <div class="card-body">
+                        <h5 class="card-title">Healthcare Providers</h5>
+                        <p class="card-text">Explore our network of hospitals, labs, and clinics.</p>
+                        <button class="btn btn-primary w-100">View</button>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Section: Know More -->
+    <section class="container py-5 text-center bg-white">
+        <h2 class="mb-4">Know More About How to Use the Services</h2>
+        <!-- You can add more content later -->
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+{% endblock content %}

@@ -1,0 +1,20 @@
+{% load static %}
+<footer class="bg-white text-center text-lg-start border-top mt-5" dir="rtl">
+  <div class="container p-4">
+    <div class="row align-items-center">
+
+      <!-- الروابط -->
+      <div class="col-12 mb-3 d-flex flex-column align-items-right">
+        <a href="{% url 'aboutar' %}" class="text-decoration-none mb-2 text-dark">من نحن</a>
+        <a href="{% url 'contactar' %}" class="text-decoration-none text-dark">تواصل معنا</a>
+      </div>
+
+      <!-- الصورة -->
+      <div class="col-12">
+        <img src="{% static 'footer.jpg' %}" alt="Logo" style="height: 200px;width:1100px;">
+      </div>
+
+    </div>
+  </div>
+</footer>
+

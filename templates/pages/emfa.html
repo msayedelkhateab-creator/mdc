@@ -1,0 +1,910 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ language }}" dir="{% if language == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>medmark TPA {% if language == 'ar' %}- الشبكة الطبية{% else %}- Medical Network{% endif %}</title>
+<link rel="icon" type="image/png" href="{% static 'logo.png' %}">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
+<style>
+:root{
+    --mm-blue:#0ea5e9;
+    --mm-blue-dark:#0369a1;
+    --mm-teal:#14b8a6;
+    --mm-navy:#0f172a;
+    --mm-bg:#f4f8fb;
+    --mm-radius:14px;
+    --mm-green:#22c55e;
+}
+*{box-sizing:border-box;}
+html,body{overflow-x:hidden;}
+body{
+    margin:0;
+    background:var(--mm-bg);
+    font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+    color:#1e293b;
+}
+
+/* ================= NAVBAR ================= */
+.mm-navbar{
+    background:linear-gradient(90deg,var(--mm-blue-dark),var(--mm-blue) 55%,var(--mm-teal));
+    color:#fff;
+    padding:.7rem 1rem;
+    box-shadow:0 2px 10px rgba(2,30,60,.15);
+}
+.mm-navbar .navbar-inner{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:.6rem;
+    max-width:1400px;
+    margin:0 auto;
+}
+.mm-navbar .brand{
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+    text-decoration:none;
+    color:#fff;
+    min-width:0;
+}
+.mm-navbar .brand img{
+    height:38px;
+    width:38px;
+    border-radius:50%;
+    background:#fff;
+    padding:3px;
+    object-fit:contain;
+    flex-shrink:0;
+}
+.mm-navbar .brand-text{
+    display:flex;
+    flex-direction:column;
+    line-height:1.2;
+    min-width:0;
+}
+.mm-navbar .brand-text .brand-main{
+    font-weight:800;
+    font-size:1.05rem;
+    white-space:nowrap;
+}
+.mm-navbar .brand-text .brand-sub{
+    font-size:.7rem;
+    font-weight:500;
+    opacity:.9;
+    white-space:nowrap;
+}
+
+.mm-navbar-actions{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    flex-wrap:wrap;
+}
+
+.mm-hotline{
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+    background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:999px;
+    padding:.35rem .8rem;
+    color:#fff;
+    font-weight:700;
+    font-size:.82rem;
+    white-space:nowrap;
+    text-decoration:none;
+}
+.mm-hotline:hover{background:rgba(255,255,255,.24);color:#fff;}
+.mm-hotline i{font-size:.95rem;}
+.mm-hotline .badge-247{
+    background:var(--mm-green);
+    color:#062e1a;
+    font-size:.6rem;
+    font-weight:800;
+    border-radius:999px;
+    padding:.15em .5em;
+    line-height:1.5;
+}
+
+/* select اللغة - سهم مرسوم يدويًا لأن appearance الافتراضي مش بيتزبط مع الراديوس والـ RTL */
+.mm-navbar .lang-form select{
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    border-radius:20px;
+    border:none;
+    font-weight:600;
+    font-size:.85rem;
+    padding:.4rem 2.1rem .4rem .9rem;
+    background-color:#fff;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%230369a1' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right .8rem center;
+    background-size:11px 7px;
+    cursor:pointer;
+}
+html[dir="rtl"] .mm-navbar .lang-form select{
+    padding:.4rem .9rem .4rem 2.1rem;
+    background-position:left .8rem center;
+}
+
+.mm-page-title{
+    text-align:center;
+    padding:1.2rem 1rem .4rem;
+    max-width:760px;
+    margin:0 auto;
+}
+.mm-page-title h1{
+    font-size:clamp(1.15rem, 3vw, 1.7rem);
+    font-weight:800;
+    color:var(--mm-navy);
+    margin:0;
+}
+.mm-page-title p{
+    color:#64748b;
+    margin:.3rem 0 0;
+    font-size:.88rem;
+}
+
+/* ================= FILTER BAR ================= */
+.mm-filter-card{
+    background:#fff;
+    border-radius:var(--mm-radius);
+    box-shadow:0 6px 24px rgba(15,23,42,.06);
+    padding:1rem 1.1rem;
+    margin:0 auto 1.2rem;
+    position:sticky;
+    top:.6rem;
+    z-index:20;
+}
+.mm-filter-card .search-wrap{position:relative;}
+.mm-filter-card .search-wrap i{
+    position:absolute;
+    top:50%; transform:translateY(-50%);
+    {% if language == 'ar' %}right:14px;{% else %}left:14px;{% endif %}
+    color:#94a3b8;
+}
+.mm-filter-card input[type="text"]{
+    border-radius:12px;
+    padding:.6rem 2.4rem;
+    border:1.5px solid #e2e8f0;
+    font-size:.95rem;
+}
+.select2-container{width:100% !important;}
+.select2-container .select2-selection--single{
+    height:calc(1.5em + 1.1rem + 2px) !important;
+    border-radius:12px !important;
+    border:1.5px solid #e2e8f0 !important;
+    display:flex;
+    align-items:center;
+    padding:0 .4rem;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height:normal !important;
+    padding-{% if language == 'ar' %}right{% else %}left{% endif %}:.4rem;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow{
+    height:100% !important;
+}
+.select2-dropdown{border-radius:12px;overflow:hidden;border-color:#e2e8f0;}
+.mm-btn-apply{
+    background:linear-gradient(90deg,var(--mm-blue),var(--mm-teal));
+    border:none;
+    color:#fff;
+    font-weight:700;
+    border-radius:12px;
+    padding:.6rem 1.4rem;
+    width:100%;
+}
+.mm-btn-apply:hover{opacity:.92;color:#fff;}
+.mm-btn-apply:active{transform:scale(.98);}
+.mm-btn-reset{border-radius:12px;font-weight:600;padding:.5rem 1.1rem;}
+#mm-spinner{display:none;}
+#mm-spinner.show{display:inline-flex;align-items:center;gap:.4rem;}
+#mm-error{display:none;}
+#mm-error.show{display:flex;}
+
+/* ================= RESULT META ================= */
+.mm-result-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:.5rem;
+    margin-bottom:.8rem;
+    color:#475569;
+    font-size:.88rem;
+}
+
+/* ================= TABLE (tablet / laptop) ================= */
+.mm-table-card{
+    background:#fff;
+    border-radius:var(--mm-radius);
+    box-shadow:0 6px 24px rgba(15,23,42,.06);
+    overflow:hidden;
+}
+.mm-table-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+}
+.mm-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.87rem;
+}
+.mm-table thead th{
+    background:#f1f5f9;
+    color:#334155;
+    font-weight:700;
+    text-align:{% if language == 'ar' %}right{% else %}left{% endif %};
+    padding:.75rem .85rem;
+    white-space:nowrap;
+    border-bottom:2px solid #e2e8f0;
+    position:sticky;
+    top:0;
+    z-index:5;
+}
+.mm-table tbody tr{
+    cursor:pointer;
+    transition:background .12s ease;
+}
+.mm-table tbody tr:nth-child(even){background:#fafcfe;}
+.mm-table tbody tr:hover{background:#eff8ff;}
+.mm-table tbody td{
+    padding:.7rem .85rem;
+    border-bottom:1px solid #f1f5f9;
+    vertical-align:top;
+}
+
+.mm-provider-name{
+    font-weight:800;
+    color:var(--mm-navy);
+    display:flex;
+    align-items:flex-start;
+    gap:.4rem;
+    min-width:150px;
+}
+.mm-provider-name i{color:var(--mm-blue);margin-top:.15rem;flex-shrink:0;}
+
+.mm-loc-badges, .mm-type-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.3rem;
+    min-width:150px;
+}
+.badge-mm{
+    font-weight:600;
+    font-size:.7rem;
+    padding:.35em .6em;
+    border-radius:999px;
+    border:1px solid transparent;
+    white-space:nowrap;
+    display:inline-flex;
+    align-items:center;
+    gap:.25em;
+}
+.badge-country{background:#e0f2fe;color:#0369a1;}
+.badge-gov{background:#ccfbf1;color:#0f766e;}
+.badge-area{background:#dcfce7;color:#15803d;}
+.badge-type{background:#ede9fe;color:#6d28d9;}
+.badge-speciality{background:#fef3c7;color:#b45309;}
+.badge-notes{background:#f1f5f9;color:#475569;}
+
+.mm-address-cell{
+    color:#64748b;
+    min-width:180px;
+    max-width:260px;
+}
+
+.mm-contact-cell{display:flex;flex-wrap:wrap;gap:.35rem;min-width:120px;}
+.mm-contact-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.3rem;
+    font-size:.72rem;
+    font-weight:600;
+    padding:.32em .6em;
+    border-radius:999px;
+    text-decoration:none;
+    border:1px solid transparent;
+}
+.mm-contact-badge.phone{background:#dcfce7;color:#166534;}
+.mm-contact-badge.email{background:#dbeafe;color:#1e40af;}
+.mm-contact-badge.website{background:#ede9fe;color:#5b21b6;}
+.mm-contact-badge:hover{filter:brightness(.95);}
+
+.mm-empty{
+    text-align:center;
+    padding:3rem 1rem;
+    color:#94a3b8;
+}
+.mm-empty i{font-size:2.5rem;display:block;margin-bottom:.6rem;}
+
+/* ================= PAGINATION ================= */
+.pagination .page-link{border-radius:10px !important;margin:0 3px;color:var(--mm-blue-dark);border:1px solid #e2e8f0;}
+.pagination .page-item.active .page-link{background:var(--mm-blue);border-color:var(--mm-blue);}
+
+/* ================= MODAL ================= */
+.mm-modal-header{
+    background:linear-gradient(90deg,var(--mm-blue-dark),var(--mm-teal));
+    color:#fff;
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.6rem;
+    flex-direction:row;
+}
+.mm-modal-header .modal-title{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    margin:0;
+    flex:1;
+    min-width:0;
+}
+.mm-modal-header .modal-title span{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.mm-modal-header .btn-close{
+    filter:invert(1);
+    flex-shrink:0;
+    margin:0;
+    opacity:.9;
+}
+.mm-modal-header .btn-close:hover{opacity:1;}
+.mm-modal-row{
+    display:flex;
+    align-items:flex-start;
+    gap:.6rem;
+    padding:.55rem 0;
+    border-bottom:1px solid #f1f5f9;
+}
+.mm-modal-row:last-child{border-bottom:none;}
+.mm-modal-row i{color:var(--mm-blue);width:20px;text-align:center;margin-top:.2rem;flex-shrink:0;}
+.mm-modal-row .lbl{font-weight:700;color:#334155;min-width:100px;}
+.mm-modal-row .val{color:#475569;word-break:break-word;}
+.mm-modal-actions{flex-wrap:wrap;gap:.4rem;}
+.mm-modal-actions .btn{border-radius:12px;font-weight:600;flex:1 1 auto;}
+
+/* =========================================================
+   RESPONSIVE — this is the important part.
+   > 992px  : full table, all columns
+   768-992  : table, Type/Speciality + Address hidden (tap row for full detail)
+   < 768    : table becomes a stacked card list (phones, small tablets in portrait)
+   ========================================================= */
+
+/* Tablet / iPad landscape and up: keep sticky filter bar */
+@media (max-width:992px){
+    .col-hide-md{display:none;}
+}
+
+/* Phones + iPad portrait: card layout instead of a squeezed table */
+@media (max-width:767.98px){
+    .mm-filter-card{position:static;}
+
+    .mm-table-scroll{overflow-x:visible;}
+    .mm-table{min-width:0;}
+    .mm-table thead{
+        position:absolute;
+        width:1px;height:1px;
+        overflow:hidden;
+        clip:rect(0 0 0 0);
+        white-space:nowrap;
+    }
+    .mm-table, .mm-table tbody, .mm-table tr{display:block;width:100%;}
+    .mm-table-card{background:transparent;box-shadow:none;border-radius:0;}
+    .mm-table tbody{display:flex;flex-direction:column;gap:.6rem;}
+
+    .mm-table tbody tr{
+        background:#fff;
+        border:1px solid #edf2f7;
+        border-radius:var(--mm-radius);
+        box-shadow:0 4px 14px rgba(15,23,42,.05);
+        padding:.6rem .85rem;
+        overflow:hidden;
+    }
+    .mm-table tbody tr:nth-child(even){background:#fff;}
+    .mm-table tbody tr:hover{background:#fff;}
+
+    .mm-table td{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:.75rem;
+        padding:.5rem 0;
+        border-bottom:1px dashed #f1f5f9;
+        min-width:0;
+        text-align:{% if language == 'ar' %}left{% else %}right{% endif %};
+    }
+    .mm-table td:last-child{border-bottom:none;}
+    .mm-table td::before{
+        content:attr(data-label);
+        font-weight:700;
+        color:#94a3b8;
+        font-size:.68rem;
+        text-transform:uppercase;
+        letter-spacing:.03em;
+        flex-shrink:0;
+        padding-top:.1rem;
+        text-align:{% if language == 'ar' %}right{% else %}left{% endif %};
+    }
+    .mm-provider-name, .mm-loc-badges, .mm-type-badges, .mm-address-cell, .mm-contact-cell{
+        min-width:0;
+        justify-content:{% if language == 'ar' %}flex-start{% else %}flex-end{% endif %};
+    }
+    .mm-address-cell{max-width:none;text-align:{% if language == 'ar' %}left{% else %}right{% endif %};}
+}
+
+/* Small phones: tighten paddings further */
+@media (max-width:380px){
+    .mm-page-title{padding:1rem .5rem .3rem;}
+    .mm-filter-card{padding:.85rem .8rem;}
+    .mm-table tbody tr{padding:.5rem .6rem;}
+}
+
+/* Large screens: cap table width so rows don't stretch too thin */
+@media (min-width:1400px){
+    .container-fluid{max-width:1400px;margin:0 auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="mm-navbar">
+    <div class="navbar-inner">
+        <a href="#" class="brand">
+            <img src="{% static 'logo.png' %}" alt="medmark">
+            <span class="brand-text">
+                <span class="brand-main">medmark TPA</span>
+                <span class="brand-sub">{% if language == 'ar' %}الشبكة الطبية{% else %}Medical Network{% endif %}</span>
+            </span>
+        </a>
+
+        <div class="mm-navbar-actions">
+            <a href="tel:19247" class="mm-hotline">
+                <i class="bi bi-telephone-fill"></i>
+                <span>{% if language == 'ar' %}الخط الساخن{% else %}Hotline{% endif %}</span>
+                <span>19247</span>
+                <span class="badge-247">24/7</span>
+            </a>
+
+            <form action="{% url 'set_language' %}" method="post" class="lang-form m-0">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                <select name="language" onchange="this.form.submit()" class="form-select form-select-sm">
+                    <option value="en" {% if language == 'en' %}selected{% endif %}>🇺🇸 English</option>
+                    <option value="ar" {% if language == 'ar' %}selected{% endif %}>🇪🇬 عربي</option>
+                </select>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="mm-page-title">
+    <h1>{% if language == 'ar' %}دليل الشبكة الطبية{% else %}Medical Network Directory{% endif %}</h1>
+    <p>{% if language == 'ar' %}اختر الدولة ثم المحافظة لتضييق نتائج البحث تلقائيًا{% else %}Choose a country then governorate to narrow results automatically{% endif %}</p>
+</div>
+
+<div class="container-fluid px-3 px-lg-4 pb-5">
+
+    <!-- FILTERS -->
+    <form method="get" id="mm-filter-form" class="mm-filter-card">
+        <div class="row g-2 align-items-center">
+            <div class="col-12">
+                <div class="search-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="query" id="mm-search" class="form-control"
+                           placeholder="{% if language == 'ar' %}ابحث بالاسم، العنوان، الهاتف أو الإيميل...{% else %}Search by name, address, phone or email...{% endif %}"
+                           value="{{ request.GET.query }}">
+                </div>
+            </div>
+
+            <div class="col-6 col-md-4 col-lg-2">
+                <select name="country" id="mm-country" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}الدولة{% else %}Country{% endif %}">
+                    <option value=""></option>
+                    {% for c in countries %}
+                        <option value="{{ c }}" {% if request.GET.country == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-6 col-md-4 col-lg-2">
+                <select name="governorate" id="mm-governorate" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}  المحافظة/المدينة{% else %}Governorate/City{% endif %}">
+                    <option value=""></option>
+                    {% for g in governorates %}
+                        <option value="{{ g }}" {% if request.GET.governorate == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-6 col-md-4 col-lg-2">
+                <select name="area" id="mm-area" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}المنطقة{% else %}Area{% endif %}">
+                    <option value=""></option>
+                    {% for a in areas %}
+                        <option value="{{ a }}" {% if request.GET.area == a %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-6 col-md-4 col-lg-2">
+                <select name="type" id="mm-type" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}النوع{% else %}Type{% endif %}">
+                    <option value=""></option>
+                    {% for t in types %}
+                        <option value="{{ t }}" {% if request.GET.type == t %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-6 col-md-4 col-lg-2">
+                <select name="speciality" id="mm-speciality" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}التخصص{% else %}Speciality{% endif %}">
+                    <option value=""></option>
+                    {% for s in specialities %}
+                        <option value="{{ s }}" {% if request.GET.speciality == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-12 col-lg-2">
+                <button type="submit" class="mm-btn-apply">
+                    <i class="bi bi-funnel-fill"></i>
+                    {% if language == 'ar' %}تصفية{% else %}Apply{% endif %}
+                </button>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+            <a href="{% url 'emfa' %}" class="btn btn-outline-secondary btn-sm mm-btn-reset">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                {% if language == 'ar' %}إعادة تعيين الكل{% else %}Reset all{% endif %}
+            </a>
+            <span id="mm-spinner" class="text-primary small">
+                <span class="spinner-border spinner-border-sm"></span>
+                {% if language == 'ar' %}جاري التحديث...{% else %}Updating...{% endif %}
+            </span>
+            <span id="mm-error" class="text-danger small align-items-center gap-1">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {% if language == 'ar' %}حدث خطأ، حاول تاني{% else %}Something went wrong, try again{% endif %}
+            </span>
+        </div>
+    </form>
+
+    <div class="mm-result-meta">
+        <span>
+            <i class="bi bi-hospital"></i>
+            {% if language == 'ar' %}إجمالي النتائج: {% else %}Total results: {% endif %}
+            <strong id="mm-total-count">{{ page_obj.paginator.count }}</strong>
+        </span>
+        <span id="mm-page-info">
+            {% if language == 'ar' %}صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}{% else %}Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}{% endif %}
+        </span>
+    </div>
+
+    <!-- TABLE / CARD LIST (becomes cards automatically under 768px, see CSS) -->
+    <div class="mm-table-card">
+        <div class="mm-table-scroll">
+            <table class="mm-table">
+                <thead>
+                    <tr>
+                        <th>{% if language == 'ar' %}مقدم الخدمة{% else %}Provider{% endif %}</th>
+                        <th class="col-hide-sm">{% if language == 'ar' %}الموقع{% else %}Location{% endif %}</th>
+                        <th class="col-hide-md">{% if language == 'ar' %}النوع / التخصص{% else %}Type / Speciality{% endif %}</th>
+                        <th class="col-hide-md">{% if language == 'ar' %}العنوان{% else %}Address{% endif %}</th>
+                        <th>{% if language == 'ar' %}التواصل{% else %}Contact{% endif %}</th>
+                        <th class="col-hide-sm">{% if language == 'ar' %}ملاحظات{% else %}Notes{% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody id="mm-table-body">
+                    {% include 'pages/_emfa_rows.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <nav class="mt-4 d-flex justify-content-center" id="mm-pagination-wrap">
+        {% include 'pages/_emfa_pagination.html' %}
+    </nav>
+</div>
+
+<!-- SMART MODAL -->
+<div class="modal fade" id="mmProviderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;">
+            <div class="modal-header mm-modal-header">
+                <h5 class="modal-title"><i class="bi bi-hospital-fill"></i><span id="mmModalTitle"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="mmModalBody"></div>
+            <div class="modal-footer mm-modal-actions" id="mmModalActions"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+/**
+ * Medical Network Directory (medmark TPA)
+ * ----------------------------------------------------------------
+ * Organized as a single namespaced module instead of loose globals:
+ * config, DOM cache, cascade logic, AJAX results, modal, responsive
+ * table->card labeling all live as methods on one object.
+ * Backend AJAX endpoint names are unchanged (still the existing
+ * "emfa" Django routes) — this is a front-end/branding pass only.
+ */
+const MedicalNetworkDirectory = (function ($) {
+    "use strict";
+
+    const LANG = "{{ language }}";
+    const IS_AR = LANG === "ar";
+
+    const URLS = {
+        governorates: "{% url 'get_governorates_emfa' %}",
+        areas: "{% url 'get_areas_emfa' %}",
+        types: "{% url 'get_types_emfa' %}",
+        specialities: "{% url 'get_specialities_emfa' %}",
+        filter: "{% url 'emfa_filter_ajax' %}"
+    };
+
+    const CASCADE_ORDER = ['governorate', 'area', 'type', 'speciality'];
+
+    // cached jQuery elements, filled in init()
+    let $el = {};
+    let searchDebounceTimer = null;
+    let activeRequest = null;
+
+    function debounce(fn, delay) {
+        return function (...args) {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    function cacheDom() {
+        $el = {
+            form: $('#mm-filter-form'),
+            search: $('#mm-search'),
+            spinner: $('#mm-spinner'),
+            error: $('#mm-error'),
+            tableBody: $('#mm-table-body'),
+            paginationWrap: $('#mm-pagination-wrap'),
+            totalCount: $('#mm-total-count'),
+            pageInfo: $('#mm-page-info'),
+            tableHeaders: $('.mm-table thead th'),
+            modal: $('#mmProviderModal'),
+            modalTitle: $('#mmModalTitle'),
+            modalBody: $('#mmModalBody'),
+            modalActions: $('#mmModalActions')
+        };
+    }
+
+    function initSelect2() {
+        $('.mm-select').select2({
+            width: '100%',
+            dir: IS_AR ? 'rtl' : 'ltr',
+            allowClear: true,
+            placeholder: function () { return $(this).data('placeholder'); }
+        });
+    }
+
+    function showSpinner() { $el.error.removeClass('show'); $el.spinner.addClass('show'); }
+    function hideSpinner() { $el.spinner.removeClass('show'); }
+    function showError() { $el.error.addClass('show'); }
+
+    function fillSelect($target, values, keepValue) {
+        $target.empty().append('<option value=""></option>');
+        values.forEach(function (v) {
+            const selected = (keepValue && v === keepValue) ? 'selected' : '';
+            $target.append(`<option value="${v}" ${selected}>${v}</option>`);
+        });
+        $target.trigger('change.select2');
+    }
+
+    function resetDownstream(from) {
+        const startIdx = CASCADE_ORDER.indexOf(from);
+        for (let i = startIdx; i < CASCADE_ORDER.length; i++) {
+            if (i === startIdx) continue;
+            $('#mm-' + CASCADE_ORDER[i]).empty().append('<option value=""></option>').val(null).trigger('change.select2');
+        }
+    }
+
+    /**
+     * Assigns data-label attributes to every <td> from the current
+     * <thead> text, so the CSS below 768px can render each row as a
+     * stacked "label: value" card without needing a separate mobile
+     * template.
+     */
+    function applyResponsiveLabels() {
+        const headers = $el.tableHeaders.map(function () { return $(this).text().trim(); }).get();
+        $el.tableBody.find('tr').each(function () {
+            $(this).find('td').each(function (i) {
+                if (headers[i]) $(this).attr('data-label', headers[i]);
+            });
+        });
+    }
+
+    function updateResultMeta(data) {
+        $el.totalCount.text(data.count);
+        $el.pageInfo.text(IS_AR ? `صفحة ${data.page} من ${data.num_pages}` : `Page ${data.page} of ${data.num_pages}`);
+    }
+
+    function replaceUrl(params) {
+        const newUrl = window.location.pathname + '?' + params;
+        window.history.replaceState({}, '', newUrl);
+    }
+
+    function loadResults(options) {
+        options = options || {};
+        showSpinner();
+        if (!options.page) $el.form.find('input[name="page"]').remove();
+        const params = $el.form.serialize();
+
+        if (activeRequest) activeRequest.abort();
+
+        activeRequest = $.getJSON(URLS.filter + '?' + params)
+            .done(function (data) {
+                $el.tableBody.html(data.rows_html);
+                $el.paginationWrap.html(data.pagination_html);
+                updateResultMeta(data);
+                applyResponsiveLabels();
+                replaceUrl(params);
+                if (options.scrollTop) window.scrollTo({ top: 0, behavior: 'smooth' });
+            })
+            .fail(function (xhr, status) {
+                if (status !== 'abort') showError();
+            })
+            .always(hideSpinner);
+    }
+
+    function goToPage(page) {
+        $el.form.find('input[name="page"]').remove();
+        $('<input>').attr({ type: 'hidden', name: 'page', value: page }).appendTo($el.form);
+        loadResults({ page: true, scrollTop: true });
+    }
+
+    function bindCascadeFilters() {
+        $('#mm-country').on('change', function () {
+            const country = $(this).val();
+            resetDownstream('governorate');
+            if (!country) { loadResults(); return; }
+            showSpinner();
+            $.getJSON(URLS.governorates, { country: country })
+                .done(function (data) { fillSelect($('#mm-governorate'), data.governorates || []); loadResults(); })
+                .fail(function () { hideSpinner(); showError(); });
+        });
+
+        $('#mm-governorate').on('change', function () {
+            const governorate = $(this).val();
+            resetDownstream('area');
+            if (!governorate) { loadResults(); return; }
+            showSpinner();
+            $.getJSON(URLS.areas, { governorate: governorate })
+                .done(function (data) { fillSelect($('#mm-area'), data.areas || []); loadResults(); })
+                .fail(function () { hideSpinner(); showError(); });
+        });
+
+        $('#mm-area').on('change', function () {
+            const area = $(this).val();
+            resetDownstream('type');
+            if (!area) { loadResults(); return; }
+            showSpinner();
+            $.getJSON(URLS.types, { area: area })
+                .done(function (data) { fillSelect($('#mm-type'), data.types || []); loadResults(); })
+                .fail(function () { hideSpinner(); showError(); });
+        });
+
+        $('#mm-type').on('change', function () {
+            const type = $(this).val();
+            resetDownstream('speciality');
+            if (!type) { loadResults(); return; }
+            showSpinner();
+            $.getJSON(URLS.specialities, { type: type })
+                .done(function (data) { fillSelect($('#mm-speciality'), data.specialities || []); loadResults(); })
+                .fail(function () { hideSpinner(); showError(); });
+        });
+
+        $('#mm-speciality').on('change', function () { loadResults(); });
+    }
+
+    function bindSearchAndForm() {
+        $el.form.on('submit', function (e) {
+            e.preventDefault();
+            loadResults();
+        });
+
+        const debouncedSearch = debounce(function () { loadResults(); }, 400);
+        $el.search.on('input', debouncedSearch);
+        $el.search.on('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(searchDebounceTimer);
+                loadResults();
+            }
+        });
+    }
+
+    function bindPagination() {
+        $(document).on('click', '.mm-page-link', function (e) {
+            e.preventDefault();
+            goToPage($(this).data('page'));
+        });
+    }
+
+    function escapeHtml(str) {
+        return $('<div>').text(str).html();
+    }
+
+    function buildModalRows(d) {
+        const get = (en, ar) => (IS_AR ? (d[ar] || '') : (d[en] || ''));
+        return [
+            { icon: 'flag-fill', label: IS_AR ? 'الدولة' : 'Country', val: get('country', 'countryAr') },
+            { icon: 'signpost-2-fill', label: IS_AR ? 'المحافظة' : 'Governorate', val: get('governorate', 'governorateAr') },
+            { icon: 'geo-alt-fill', label: IS_AR ? 'المنطقة' : 'Area', val: get('area', 'areaAr') },
+            { icon: 'hospital-fill', label: IS_AR ? 'النوع' : 'Type', val: get('type', 'typeAr') },
+            { icon: 'clipboard2-pulse-fill', label: IS_AR ? 'التخصص' : 'Speciality', val: get('speciality', 'specialityAr') },
+            { icon: 'geo-alt', label: IS_AR ? 'العنوان' : 'Address', val: get('address', 'addressAr') },
+            { icon: 'telephone-fill', label: IS_AR ? 'الهاتف' : 'Phone', val: d.phone || (IS_AR ? 'غير متاح' : 'N/A') },
+            { icon: 'envelope-fill', label: 'Email', val: d.email || (IS_AR ? 'غير متاح' : 'N/A') },
+            { icon: 'globe2', label: IS_AR ? 'الموقع' : 'Website', val: d.website || (IS_AR ? 'غير متاح' : 'N/A') },
+            { icon: 'sticky-fill', label: IS_AR ? 'ملاحظات' : 'Notes', val: d.notes || (IS_AR ? 'لا يوجد' : 'None') }
+        ];
+    }
+
+    function bindRowModal() {
+        $(document).on('click', '.mm-row', function () {
+            const d = $(this).data();
+            const get = (en, ar) => (IS_AR ? (d[ar] || '') : (d[en] || ''));
+
+            $el.modalTitle.text(get('provider', 'providerAr'));
+
+            let bodyHtml = '';
+            buildModalRows(d).forEach(function (r) {
+                if (!r.val) return;
+                bodyHtml += `<div class="mm-modal-row">
+                    <i class="bi bi-${r.icon}"></i>
+                    <div><span class="lbl">${r.label}:</span> <span class="val">${escapeHtml(r.val)}</span></div>
+                </div>`;
+            });
+            $el.modalBody.html(bodyHtml);
+
+            let actions = '';
+            if (d.phone) actions += `<a href="tel:${d.phone}" class="btn btn-success btn-sm"><i class="bi bi-telephone-fill"></i> ${IS_AR ? 'اتصال' : 'Call'}</a>`;
+            if (d.email) actions += `<a href="mailto:${d.email}" class="btn btn-primary btn-sm"><i class="bi bi-envelope-fill"></i> Email</a>`;
+            if (d.website) actions += `<a href="${d.website}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm"><i class="bi bi-globe2"></i> ${IS_AR ? 'الموقع' : 'Website'}</a>`;
+            $el.modalActions.html(actions);
+
+            new bootstrap.Modal($el.modal[0]).show();
+        });
+    }
+
+    function init() {
+        cacheDom();
+        initSelect2();
+        applyResponsiveLabels();
+        bindCascadeFilters();
+        bindSearchAndForm();
+        bindPagination();
+        bindRowModal();
+    }
+
+    return { init: init };
+})(jQuery);
+
+$(document).ready(MedicalNetworkDirectory.init);
+</script>
+
+</body>
+</html>
