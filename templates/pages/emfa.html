@@ -114,7 +114,6 @@ body{
     line-height:1.5;
 }
 
-/* select اللغة - سهم مرسوم يدويًا لأن appearance الافتراضي مش بيتزبط مع الراديوس والـ RTL */
 .mm-navbar .lang-form select{
     appearance:none;
     -webkit-appearance:none;
@@ -293,9 +292,15 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 }
 .badge-country{background:#e0f2fe;color:#0369a1;}
 .badge-gov{background:#ccfbf1;color:#0f766e;}
-.badge-area{background:#dcfce7;color:#15803d;}
 .badge-type{background:#ede9fe;color:#6d28d9;}
-.badge-speciality{background:#fef3c7;color:#b45309;}
+.badge-speciality{
+    background:#fef3c7;
+    color:#b45309;
+    max-width:220px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
 .badge-notes{background:#f1f5f9;color:#475569;}
 
 .mm-address-cell{
@@ -378,18 +383,12 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 .mm-modal-actions .btn{border-radius:12px;font-weight:600;flex:1 1 auto;}
 
 /* =========================================================
-   RESPONSIVE — this is the important part.
-   > 992px  : full table, all columns
-   768-992  : table, Type/Speciality + Address hidden (tap row for full detail)
-   < 768    : table becomes a stacked card list (phones, small tablets in portrait)
+   RESPONSIVE
    ========================================================= */
-
-/* Tablet / iPad landscape and up: keep sticky filter bar */
 @media (max-width:992px){
     .col-hide-md{display:none;}
 }
 
-/* Phones + iPad portrait: card layout instead of a squeezed table */
 @media (max-width:767.98px){
     .mm-filter-card{position:static;}
 
@@ -444,16 +443,15 @@ html[dir="rtl"] .mm-navbar .lang-form select{
         justify-content:{% if language == 'ar' %}flex-start{% else %}flex-end{% endif %};
     }
     .mm-address-cell{max-width:none;text-align:{% if language == 'ar' %}left{% else %}right{% endif %};}
+    .badge-speciality{max-width:160px;}
 }
 
-/* Small phones: tighten paddings further */
 @media (max-width:380px){
     .mm-page-title{padding:1rem .5rem .3rem;}
     .mm-filter-card{padding:.85rem .8rem;}
     .mm-table tbody tr{padding:.5rem .6rem;}
 }
 
-/* Large screens: cap table width so rows don't stretch too thin */
 @media (min-width:1400px){
     .container-fluid{max-width:1400px;margin:0 auto;}
 }
@@ -494,7 +492,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 
 <div class="mm-page-title">
     <h1>{% if language == 'ar' %}دليل الشبكة الطبية{% else %}Medical Network Directory{% endif %}</h1>
-    <p>{% if language == 'ar' %}اختر الدولة ثم المحافظة لتضييق نتائج البحث تلقائيًا{% else %}Choose a country then governorate to narrow results automatically{% endif %}</p>
+    <p>{% if language == 'ar' %}اختر الدولة ثم المدينة لتضييق نتائج البحث تلقائيًا{% else %}Choose a country then city to narrow results automatically{% endif %}</p>
 </div>
 
 <div class="container-fluid px-3 px-lg-4 pb-5">
@@ -506,12 +504,12 @@ html[dir="rtl"] .mm-navbar .lang-form select{
                 <div class="search-wrap">
                     <i class="bi bi-search"></i>
                     <input type="text" name="query" id="mm-search" class="form-control"
-                           placeholder="{% if language == 'ar' %}ابحث بالاسم، العنوان، الهاتف أو الإيميل...{% else %}Search by name, address, phone or email...{% endif %}"
+                           placeholder="{% if language == 'ar' %}ابحث بالاسم، التخصص، العنوان، الهاتف أو الإيميل...{% else %}Search by name, speciality, address, phone or email...{% endif %}"
                            value="{{ request.GET.query }}">
                 </div>
             </div>
 
-            <div class="col-6 col-md-4 col-lg-2">
+            <div class="col-6 col-md-4 col-lg-3">
                 <select name="country" id="mm-country" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}الدولة{% else %}Country{% endif %}">
                     <option value=""></option>
                     {% for c in countries %}
@@ -520,25 +518,16 @@ html[dir="rtl"] .mm-navbar .lang-form select{
                 </select>
             </div>
 
-            <div class="col-6 col-md-4 col-lg-2">
-                <select name="governorate" id="mm-governorate" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}  المحافظة/المدينة{% else %}Governorate/City{% endif %}">
+            <div class="col-6 col-md-4 col-lg-3">
+                <select name="city" id="mm-city" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}المدينة{% else %}City{% endif %}">
                     <option value=""></option>
-                    {% for g in governorates %}
-                        <option value="{{ g }}" {% if request.GET.governorate == g %}selected{% endif %}>{{ g }}</option>
+                    {% for c in cities %}
+                        <option value="{{ c }}" {% if request.GET.city == c %}selected{% endif %}>{{ c }}</option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="col-6 col-md-4 col-lg-2">
-                <select name="area" id="mm-area" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}المنطقة{% else %}Area{% endif %}">
-                    <option value=""></option>
-                    {% for a in areas %}
-                        <option value="{{ a }}" {% if request.GET.area == a %}selected{% endif %}>{{ a }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-6 col-md-4 col-lg-2">
+            <div class="col-6 col-md-4 col-lg-3">
                 <select name="type" id="mm-type" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}النوع{% else %}Type{% endif %}">
                     <option value=""></option>
                     {% for t in types %}
@@ -547,16 +536,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
                 </select>
             </div>
 
-            <div class="col-6 col-md-4 col-lg-2">
-                <select name="speciality" id="mm-speciality" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}التخصص{% else %}Speciality{% endif %}">
-                    <option value=""></option>
-                    {% for s in specialities %}
-                        <option value="{{ s }}" {% if request.GET.speciality == s %}selected{% endif %}>{{ s }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-12 col-lg-2">
+            <div class="col-6 col-lg-3">
                 <button type="submit" class="mm-btn-apply">
                     <i class="bi bi-funnel-fill"></i>
                     {% if language == 'ar' %}تصفية{% else %}Apply{% endif %}
@@ -637,13 +617,11 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 
 <script>
 /**
- * Medical Network Directory (medmark TPA)
+ * Medical Network Directory (medmark TPA) - EMFA
  * ----------------------------------------------------------------
- * Organized as a single namespaced module instead of loose globals:
- * config, DOM cache, cascade logic, AJAX results, modal, responsive
- * table->card labeling all live as methods on one object.
- * Backend AJAX endpoint names are unchanged (still the existing
- * "emfa" Django routes) — this is a front-end/branding pass only.
+ * Cascade: country -> city -> type
+ * Search covers: provider, speciality, address, phone, mobile, email
+ * (speciality is NOT a dropdown filter, only searchable + shown in row/modal)
  */
 const MedicalNetworkDirectory = (function ($) {
     "use strict";
@@ -652,16 +630,13 @@ const MedicalNetworkDirectory = (function ($) {
     const IS_AR = LANG === "ar";
 
     const URLS = {
-        governorates: "{% url 'get_governorates_emfa' %}",
-        areas: "{% url 'get_areas_emfa' %}",
+        cities: "{% url 'get_cities_emfa' %}",
         types: "{% url 'get_types_emfa' %}",
-        specialities: "{% url 'get_specialities_emfa' %}",
         filter: "{% url 'emfa_filter_ajax' %}"
     };
 
-    const CASCADE_ORDER = ['governorate', 'area', 'type', 'speciality'];
+    const CASCADE_ORDER = ['city', 'type'];
 
-    // cached jQuery elements, filled in init()
     let $el = {};
     let searchDebounceTimer = null;
     let activeRequest = null;
@@ -721,12 +696,6 @@ const MedicalNetworkDirectory = (function ($) {
         }
     }
 
-    /**
-     * Assigns data-label attributes to every <td> from the current
-     * <thead> text, so the CSS below 768px can render each row as a
-     * stacked "label: value" card without needing a separate mobile
-     * template.
-     */
     function applyResponsiveLabels() {
         const headers = $el.tableHeaders.map(function () { return $(this).text().trim(); }).get();
         $el.tableBody.find('tr').each(function () {
@@ -778,45 +747,25 @@ const MedicalNetworkDirectory = (function ($) {
     function bindCascadeFilters() {
         $('#mm-country').on('change', function () {
             const country = $(this).val();
-            resetDownstream('governorate');
+            resetDownstream('city');
             if (!country) { loadResults(); return; }
             showSpinner();
-            $.getJSON(URLS.governorates, { country: country })
-                .done(function (data) { fillSelect($('#mm-governorate'), data.governorates || []); loadResults(); })
+            $.getJSON(URLS.cities, { country: country })
+                .done(function (data) { fillSelect($('#mm-city'), data.cities || []); loadResults(); })
                 .fail(function () { hideSpinner(); showError(); });
         });
 
-        $('#mm-governorate').on('change', function () {
-            const governorate = $(this).val();
-            resetDownstream('area');
-            if (!governorate) { loadResults(); return; }
-            showSpinner();
-            $.getJSON(URLS.areas, { governorate: governorate })
-                .done(function (data) { fillSelect($('#mm-area'), data.areas || []); loadResults(); })
-                .fail(function () { hideSpinner(); showError(); });
-        });
-
-        $('#mm-area').on('change', function () {
-            const area = $(this).val();
+        $('#mm-city').on('change', function () {
+            const city = $(this).val();
             resetDownstream('type');
-            if (!area) { loadResults(); return; }
+            if (!city) { loadResults(); return; }
             showSpinner();
-            $.getJSON(URLS.types, { area: area })
+            $.getJSON(URLS.types, { city: city })
                 .done(function (data) { fillSelect($('#mm-type'), data.types || []); loadResults(); })
                 .fail(function () { hideSpinner(); showError(); });
         });
 
-        $('#mm-type').on('change', function () {
-            const type = $(this).val();
-            resetDownstream('speciality');
-            if (!type) { loadResults(); return; }
-            showSpinner();
-            $.getJSON(URLS.specialities, { type: type })
-                .done(function (data) { fillSelect($('#mm-speciality'), data.specialities || []); loadResults(); })
-                .fail(function () { hideSpinner(); showError(); });
-        });
-
-        $('#mm-speciality').on('change', function () { loadResults(); });
+        $('#mm-type').on('change', function () { loadResults(); });
     }
 
     function bindSearchAndForm() {
@@ -851,15 +800,15 @@ const MedicalNetworkDirectory = (function ($) {
         const get = (en, ar) => (IS_AR ? (d[ar] || '') : (d[en] || ''));
         return [
             { icon: 'flag-fill', label: IS_AR ? 'الدولة' : 'Country', val: get('country', 'countryAr') },
-            { icon: 'signpost-2-fill', label: IS_AR ? 'المحافظة' : 'Governorate', val: get('governorate', 'governorateAr') },
-            { icon: 'geo-alt-fill', label: IS_AR ? 'المنطقة' : 'Area', val: get('area', 'areaAr') },
+            { icon: 'signpost-2-fill', label: IS_AR ? 'المدينة' : 'City', val: get('city', 'cityAr') },
             { icon: 'hospital-fill', label: IS_AR ? 'النوع' : 'Type', val: get('type', 'typeAr') },
-            { icon: 'clipboard2-pulse-fill', label: IS_AR ? 'التخصص' : 'Speciality', val: get('speciality', 'specialityAr') },
+            { icon: 'clipboard2-pulse-fill', label: IS_AR ? 'التخصصات' : 'Specialities', val: get('speciality', 'specialityAr') },
             { icon: 'geo-alt', label: IS_AR ? 'العنوان' : 'Address', val: get('address', 'addressAr') },
-            { icon: 'telephone-fill', label: IS_AR ? 'الهاتف' : 'Phone', val: d.phone || (IS_AR ? 'غير متاح' : 'N/A') },
-            { icon: 'envelope-fill', label: 'Email', val: d.email || (IS_AR ? 'غير متاح' : 'N/A') },
-            { icon: 'globe2', label: IS_AR ? 'الموقع' : 'Website', val: d.website || (IS_AR ? 'غير متاح' : 'N/A') },
-            { icon: 'sticky-fill', label: IS_AR ? 'ملاحظات' : 'Notes', val: d.notes || (IS_AR ? 'لا يوجد' : 'None') }
+            { icon: 'telephone-fill', label: IS_AR ? 'الهاتف' : 'Phone', val: d.phone || '' },
+            { icon: 'phone-fill', label: IS_AR ? 'الموبايل' : 'Mobile', val: d.mobile || '' },
+            { icon: 'envelope-fill', label: 'Email', val: d.email || '' },
+            { icon: 'globe2', label: IS_AR ? 'الموقع' : 'Website', val: d.website || '' },
+            { icon: 'sticky-fill', label: IS_AR ? 'ملاحظات' : 'Notes', val: d.notes || '' }
         ];
     }
 
@@ -882,8 +831,9 @@ const MedicalNetworkDirectory = (function ($) {
 
             let actions = '';
             if (d.phone) actions += `<a href="tel:${d.phone}" class="btn btn-success btn-sm"><i class="bi bi-telephone-fill"></i> ${IS_AR ? 'اتصال' : 'Call'}</a>`;
+            if (d.mobile) actions += `<a href="tel:${d.mobile}" class="btn btn-success btn-sm"><i class="bi bi-phone-fill"></i> ${IS_AR ? 'موبايل' : 'Mobile'}</a>`;
             if (d.email) actions += `<a href="mailto:${d.email}" class="btn btn-primary btn-sm"><i class="bi bi-envelope-fill"></i> Email</a>`;
-            if (d.website) actions += `<a href="${d.website}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm"><i class="bi bi-globe2"></i> ${IS_AR ? 'الموقع' : 'Website'}</a>`;
+            if (d.website) actions += `<a href="${d.website.indexOf('http') === 0 ? d.website : 'https://' + d.website}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm"><i class="bi bi-globe2"></i> ${IS_AR ? 'الموقع' : 'Website'}</a>`;
             $el.modalActions.html(actions);
 
             new bootstrap.Modal($el.modal[0]).show();

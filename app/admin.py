@@ -39,58 +39,7 @@ class NetworkAdmin(ImportExportModelAdmin):
 # استبدل الكلاس القديم بده بالكامل
 # ==========================================================
 
-@admin.register(Networkemfa)
-class NetworkEmfaAdmin(ImportExportModelAdmin):
-    list_display = [
-        'country', 'governorate', 'area', 'type',
-        'speciality', 'provider', 'phone', 'address_short',
-    ]
-    list_display_links = ['provider']
-    list_editable = ['phone']
 
-    search_fields = [
-        'country', 'country_ar',
-        'governorate', 'governorate_ar',
-        'area', 'area_ar',
-        'type', 'type_ar',
-        'speciality', 'speciality_ar',
-        'provider', 'provider_ar',
-        'address', 'address_ar',
-        'phone', 'email',
-    ]
-
-    list_filter = ['country', 'governorate', 'area', 'type']
-    list_per_page = 50
-    ordering = ['country', 'governorate', 'area', 'provider']
-
-    fieldsets = (
-        ('الموقع / Location', {
-            'fields': (
-                ('country', 'country_ar'),
-                ('governorate', 'governorate_ar'),
-                ('area', 'area_ar'),
-            )
-        }),
-        ('التصنيف / Classification', {
-            'fields': (
-                ('type', 'type_ar'),
-                ('speciality', 'speciality_ar'),
-            )
-        }),
-        ('مقدم الخدمة / Provider', {
-            'fields': (
-                ('provider', 'provider_ar'),
-                ('address', 'address_ar'),
-            )
-        }),
-        ('بيانات التواصل / Contact', {
-            'fields': ('phone', 'website', 'email', 'notes'),
-        }),
-    )
-
-    def address_short(self, obj):
-        return (obj.address[:40] + '...') if obj.address and len(obj.address) > 40 else obj.address
-    address_short.short_description = 'Address'
 
 @admin.register(Networkhorizon)
 class NetworkAdmin(ImportExportModelAdmin):
@@ -106,3 +55,35 @@ class NetworkAdmin(ImportExportModelAdmin):
     list_display_links = ['provider', 'phone']
     search_fields = ['governorate','area','type','speciality','provider','address','phone']
     list_filter = ['provider','governorate','area']
+
+
+
+from import_export import resources
+
+# ==========================================================
+# Networkemfa (المودل الجديد: country/city بدل governorate/area)
+# ==========================================================
+
+class NetworkemfaResource(resources.ModelResource):
+    class Meta:
+        model = Networkemfa
+        fields = (
+            'id',
+            'country', 'country_ar',
+            'city', 'city_ar',
+            'type', 'type_ar',
+            'speciality', 'speciality_ar',
+            'provider', 'provider_ar',
+            'address', 'address_ar',
+            'phone', 'mobile', 'email', 'website', 'notes',
+        )
+        export_order = fields
+
+
+@admin.register(Networkemfa)
+class NetworkemfaAdmin(ImportExportModelAdmin):
+    resource_class = NetworkemfaResource
+    list_display = ['provider', 'country', 'city', 'type', 'phone', 'mobile', 'email']
+    list_display_links = ['provider', 'phone']
+    search_fields = ['provider', 'provider_ar', 'city', 'city_ar', 'address', 'address_ar', 'speciality', 'phone', 'mobile', 'email']
+    list_filter = ['country', 'city', 'type']

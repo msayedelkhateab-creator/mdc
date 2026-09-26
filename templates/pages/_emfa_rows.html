@@ -2,19 +2,18 @@
 <tr class="mm-row"
     data-country="{{ network.country }}"
     data-country-ar="{{ network.country_ar }}"
-    data-governorate="{{ network.governorate }}"
-    data-governorate-ar="{{ network.governorate_ar }}"
-    data-area="{{ network.area|default:'' }}"
-    data-area-ar="{{ network.area_ar|default:'' }}"
+    data-city="{{ network.city|default:'' }}"
+    data-city-ar="{{ network.city_ar|default:'' }}"
     data-type="{{ network.type }}"
     data-type-ar="{{ network.type_ar }}"
-    data-speciality="{{ network.speciality }}"
-    data-speciality-ar="{{ network.speciality_ar }}"
+    data-speciality="{{ network.speciality|default:'' }}"
+    data-speciality-ar="{{ network.speciality_ar|default:'' }}"
     data-provider="{{ network.provider }}"
     data-provider-ar="{{ network.provider_ar }}"
     data-address="{{ network.address }}"
     data-address-ar="{{ network.address_ar }}"
     data-phone="{{ network.phone|default:'' }}"
+    data-mobile="{{ network.mobile|default:'' }}"
     data-website="{{ network.website|default:'' }}"
     data-email="{{ network.email|default:'' }}"
     data-notes="{{ network.notes|default:'' }}">
@@ -29,9 +28,8 @@
     <td class="col-hide-sm">
         <div class="mm-loc-badges">
             <span class="badge-mm badge-country"><i class="bi bi-flag-fill"></i> {% if language == 'en' %}{{ network.country }}{% else %}{{ network.country_ar }}{% endif %}</span>
-            <span class="badge-mm badge-gov"><i class="bi bi-signpost-2-fill"></i> {% if language == 'en' %}{{ network.governorate }}{% else %}{{ network.governorate_ar }}{% endif %}</span>
-            {% if network.area %}
-            <span class="badge-mm badge-area"><i class="bi bi-geo-alt-fill"></i> {% if language == 'en' %}{{ network.area }}{% else %}{{ network.area_ar }}{% endif %}</span>
+            {% if network.city %}
+            <span class="badge-mm badge-gov"><i class="bi bi-signpost-2-fill"></i> {% if language == 'en' %}{{ network.city }}{% else %}{{ network.city_ar }}{% endif %}</span>
             {% endif %}
         </div>
     </td>
@@ -39,7 +37,12 @@
     <td class="col-hide-md">
         <div class="mm-type-badges">
             <span class="badge-mm badge-type"><i class="bi bi-hospital-fill"></i> {% if language == 'en' %}{{ network.type }}{% else %}{{ network.type_ar }}{% endif %}</span>
-            <span class="badge-mm badge-speciality"><i class="bi bi-clipboard2-pulse-fill"></i> {% if language == 'en' %}{{ network.speciality }}{% else %}{{ network.speciality_ar }}{% endif %}</span>
+            {% if network.speciality %}
+            <span class="badge-mm badge-speciality" title="{% if language == 'en' %}{{ network.speciality }}{% else %}{{ network.speciality_ar }}{% endif %}">
+                <i class="bi bi-clipboard2-pulse-fill"></i>
+                {% if language == 'en' %}{{ network.speciality|truncatechars:40 }}{% else %}{{ network.speciality_ar|truncatechars:40 }}{% endif %}
+            </span>
+            {% endif %}
         </div>
     </td>
 
@@ -53,6 +56,11 @@
             {% if network.phone %}
             <a href="tel:{{ network.phone }}" class="mm-contact-badge phone" onclick="event.stopPropagation();">
                 <i class="bi bi-telephone-fill"></i> {{ network.phone }}
+            </a>
+            {% endif %}
+            {% if network.mobile %}
+            <a href="tel:{{ network.mobile }}" class="mm-contact-badge phone" onclick="event.stopPropagation();">
+                <i class="bi bi-phone-fill"></i> {{ network.mobile }}
             </a>
             {% endif %}
             {% if network.email %}

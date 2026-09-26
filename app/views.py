@@ -408,56 +408,61 @@ def preauth_view(request):
 
     return render(request, 'pages/preauth.html', {'form': form})
 
-
 # =====================================================================
 #  EMFA
 # =====================================================================
-
 
 def get_language_fields_emfa(language):
     if language == 'ar':
         return {
             'country': 'country_ar',
-            'governorate': 'governorate_ar',
-            'area': 'area_ar',
+            'city': 'city_ar',
             'type': 'type_ar',
-            'speciality': 'speciality_ar',
-            'provider': 'provider_ar',
-            'address': 'address_ar',
         }
     return {
         'country': 'country',
-        'governorate': 'governorate',
-        'area': 'area',
+        'city': 'city',
         'type': 'type',
-        'speciality': 'speciality',
-        'provider': 'provider',
-        'address': 'address',
     }
+
+
+def build_query_filter_emfa(query, language):
+    """البحث العام: provider, speciality, address, phone, mobile, email"""
+    query_filter = (
+        Q(provider__icontains=query) |
+        Q(speciality__icontains=query) |
+        Q(address__icontains=query) |
+        Q(phone__icontains=query) |
+        Q(mobile__icontains=query) |
+        Q(email__icontains=query)
+    )
+
+    if language == 'ar':
+        query_filter |= (
+            Q(provider_ar__icontains=query) |
+            Q(speciality_ar__icontains=query) |
+            Q(address_ar__icontains=query)
+        )
+
+    return query_filter
 
 
 def apply_filters_emfa(queryset, request, fields):
     country = request.GET.get('country')
-    governorate = request.GET.get('governorate')
-    area = request.GET.get('area')
+    city = request.GET.get('city')
     type_param = request.GET.get('type')
-    speciality = request.GET.get('speciality')
     query = request.GET.get('query', '').strip()
 
     if country:
         queryset = queryset.filter(**{fields['country']: country})
-    if governorate:
-        queryset = queryset.filter(**{fields['governorate']: governorate})
-    if area:
-        queryset = queryset.filter(**{fields['area']: area})
+    if city:
+        queryset = queryset.filter(**{fields['city']: city})
     if type_param:
         queryset = queryset.filter(**{fields['type']: type_param})
-    if speciality:
-        queryset = queryset.filter(**{fields['speciality']: speciality})
 
     if query and len(query) > 2:
         language = get_language()
-        queryset = queryset.filter(build_query_filter(query, language))
+        queryset = queryset.filter(build_query_filter_emfa(query, language))
 
     return queryset
 
@@ -465,17 +470,13 @@ def apply_filters_emfa(queryset, request, fields):
 def get_filter_options_emfa(fields):
     return {
         'countries': sorted(filter(None, Networkemfa.objects.values_list(fields['country'], flat=True).distinct())),
-        'governorates': sorted(
-            filter(None, Networkemfa.objects.values_list(fields['governorate'], flat=True).distinct())),
-        'areas': sorted(filter(None, Networkemfa.objects.values_list(fields['area'], flat=True).distinct())),
+        'cities': sorted(filter(None, Networkemfa.objects.values_list(fields['city'], flat=True).distinct())),
         'types': sorted(filter(None, Networkemfa.objects.values_list(fields['type'], flat=True).distinct())),
-        'specialities': sorted(
-            filter(None, Networkemfa.objects.values_list(fields['speciality'], flat=True).distinct())),
     }
 
 
 def get_cached_filter_options_emfa(language):
-    cache_key = f"Networkemfa_{language}_filters_v2"
+    cache_key = f"Networkemfa_{language}_filters_v3"
     filter_options = cache.get(cache_key)
     if not filter_options:
         fields = get_language_fields_emfa(language)
@@ -488,25 +489,22 @@ def get_optimized_queryset_emfa():
     return Networkemfa.objects.only(
         'id',
         'country', 'country_ar',
-        'governorate', 'governorate_ar',
-        'area', 'area_ar',
+        'city', 'city_ar',
         'type', 'type_ar',
         'speciality', 'speciality_ar',
         'provider', 'provider_ar',
         'address', 'address_ar',
-        'phone', 'website', 'email', 'notes',
+        'phone', 'mobile', 'website', 'email', 'notes',
     )
 
 
 def build_emfa_queryset(request, fields):
-    """منطق مشترك يُستخدم في الصفحة العادية وفي الـ AJAX عشان منكررش كود"""
     networks = get_optimized_queryset_emfa()
     networks = apply_filters_emfa(networks, request, fields)
     return networks
 
 
 def emfa(request):
-    """أول تحميل للصفحة (Full HTML)"""
     language = get_language()
     fields = get_language_fields_emfa(language)
 
@@ -527,11 +525,6 @@ def emfa(request):
 
 
 def emfa_filter_ajax(request):
-    """
-    دي اللي بتخلي الفلترة تحصل من غير Reload خالص.
-    بترجع جزء الـ HTML بتاع الصفوف + الباجينيشن بس كـ JSON،
-    والـ JS بيستبدلهم في الصفحة مباشرة.
-    """
     language = get_language()
     fields = get_language_fields_emfa(language)
 
@@ -559,95 +552,50 @@ def emfa_filter_ajax(request):
     })
 
 
-# ---------- AJAX: تسلسل الفلاتر (Cascade) ----------
+# ---------- AJAX: تسلسل الفلاتر (Cascade: country -> city -> type) ----------
 
-def get_governorates_emfa(request):
+def get_cities_emfa(request):
     language = get_language()
     country = request.GET.get('country')
     if not country:
-        return JsonResponse({'governorates': []})
+        return JsonResponse({'cities': []})
 
-    cache_key = f"Networkemfa_{language}_governorates_{country}"
-    governorates = cache.get(cache_key)
-    if governorates is None:
+    cache_key = f"Networkemfa_{language}_cities_{country}"
+    cities = cache.get(cache_key)
+    if cities is None:
         country_field = 'country_ar' if language == 'ar' else 'country'
-        gov_field = 'governorate_ar' if language == 'ar' else 'governorate'
-        governorates = sorted(filter(None, Networkemfa.objects.filter(
+        city_field = 'city_ar' if language == 'ar' else 'city'
+        cities = sorted(filter(None, Networkemfa.objects.filter(
             **{country_field: country}
-        ).values_list(gov_field, flat=True).distinct()))
-        cache.set(cache_key, governorates, 3600)
+        ).values_list(city_field, flat=True).distinct()))
+        cache.set(cache_key, cities, 3600)
 
-    return JsonResponse({'governorates': governorates})
-
-
-def get_areas_emfa(request):
-    language = get_language()
-    governorate = request.GET.get('governorate')
-    if not governorate:
-        return JsonResponse({'areas': []})
-
-    cache_key = f"Networkemfa_{language}_areas_{governorate}"
-    areas = cache.get(cache_key)
-    if areas is None:
-        gov_field = 'governorate_ar' if language == 'ar' else 'governorate'
-        area_field = 'area_ar' if language == 'ar' else 'area'
-        areas = sorted(filter(None, Networkemfa.objects.filter(
-            **{gov_field: governorate}
-        ).values_list(area_field, flat=True).distinct()))
-        cache.set(cache_key, areas, 3600)
-
-    return JsonResponse({'areas': areas})
+    return JsonResponse({'cities': cities})
 
 
 def get_types_emfa(request):
     language = get_language()
-    area = request.GET.get('area')
-    if not area:
+    city = request.GET.get('city')
+    if not city:
         return JsonResponse({'types': []})
 
-    cache_key = f"Networkemfa_{language}_types_{area}"
+    cache_key = f"Networkemfa_{language}_types_{city}"
     types = cache.get(cache_key)
     if types is None:
-        area_field = 'area_ar' if language == 'ar' else 'area'
+        city_field = 'city_ar' if language == 'ar' else 'city'
         type_field = 'type_ar' if language == 'ar' else 'type'
         types = sorted(filter(None, Networkemfa.objects.filter(
-            **{area_field: area}
+            **{city_field: city}
         ).values_list(type_field, flat=True).distinct()))
         cache.set(cache_key, types, 3600)
 
     return JsonResponse({'types': types})
 
 
-def get_specialities_emfa(request):
-    language = get_language()
-    type_param = request.GET.get('type')
-    if not type_param:
-        return JsonResponse({'specialities': []})
-
-    cache_key = f"Networkemfa_{language}_specialities_{type_param}"
-    specialities = cache.get(cache_key)
-    if specialities is None:
-        type_field = 'type_ar' if language == 'ar' else 'type'
-        spec_field = 'speciality_ar' if language == 'ar' else 'speciality'
-        specialities = sorted(filter(None, Networkemfa.objects.filter(
-            **{type_field: type_param}
-        ).values_list(spec_field, flat=True).distinct()))
-        cache.set(cache_key, specialities, 3600)
-
-    return JsonResponse({'specialities': specialities})
-
-
 # ============= CLEAR LANGUAGE CACHE (for debugging) =============
 
 @staff_member_required
 def clear_language_cache(request):
-    """
-    🔥 حذف الـ Cache الخاص باللغات (للـ Debugging فقط)
-    """
     pattern = 'Networkemfa_*_filters*'
     cache.delete_pattern(pattern)
-
-    return JsonResponse({
-        'success': True,
-        'message': 'تم حذف الـ Cache'
-    })
+    return JsonResponse({'success': True, 'message': 'تم حذف الـ Cache'})

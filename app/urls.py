@@ -31,11 +31,12 @@ urlpatterns = [
     path('ajax/mofa/types/', views.get_types_mofa, name='get_types_mofa'),
     path('ajax/exxon/areas/', views.get_areas_exxon, name='get_areas_exxon'),
     path('ajax/exxon/types/', views.get_types_exxon, name='get_types_exxon'),
+
+    # ===== EMFA (updated: country -> city -> type, no area/speciality dropdowns) =====
     path('ajax/emfa/filter/', views.emfa_filter_ajax, name='emfa_filter_ajax'),
-    path('ajax/emfa/governorates/', views.get_governorates_emfa, name='get_governorates_emfa'),
-    path('ajax/emfa/areas/', views.get_areas_emfa, name='get_areas_emfa'),
+    path('ajax/emfa/cities/', views.get_cities_emfa, name='get_cities_emfa'),
     path('ajax/emfa/types/', views.get_types_emfa, name='get_types_emfa'),
-    path('ajax/emfa/specialities/', views.get_specialities_emfa, name='get_specialities_emfa'),
+
     path('ajax/horizon/areas/', views.get_areas_horizon, name='get_areas_horizon'),
     path('ajax/horizon/types/', views.get_types_horizon, name='get_types_horizon'),
     path('ajax/horizon-global/areas/', views.get_areas_horizon_global, name='get_areas_horizon_global'),
