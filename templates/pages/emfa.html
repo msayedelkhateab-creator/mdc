@@ -238,6 +238,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     width:100%;
     border-collapse:collapse;
     font-size:.87rem;
+    table-layout:fixed;
 }
 .mm-table thead th{
     background:#f1f5f9;
@@ -261,6 +262,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     padding:.7rem .85rem;
     border-bottom:1px solid #f1f5f9;
     vertical-align:top;
+    overflow:hidden;
 }
 
 .mm-provider-name{
@@ -269,15 +271,20 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     display:flex;
     align-items:flex-start;
     gap:.4rem;
-    min-width:150px;
+    overflow:hidden;
+}
+.mm-provider-name span{
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 .mm-provider-name i{color:var(--mm-blue);margin-top:.15rem;flex-shrink:0;}
 
+/* 🔥 عمودي مش صفي، عشان البادجز تبقى ثابتة الطول ومتسقة دايمًا */
 .mm-loc-badges, .mm-type-badges{
     display:flex;
-    flex-wrap:wrap;
-    gap:.3rem;
-    min-width:150px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:.35rem;
 }
 .badge-mm{
     font-weight:600;
@@ -289,6 +296,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     display:inline-flex;
     align-items:center;
     gap:.25em;
+    max-width:100%;
 }
 .badge-country{background:#e0f2fe;color:#0369a1;}
 .badge-gov{background:#ccfbf1;color:#0f766e;}
@@ -296,20 +304,20 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 .badge-speciality{
     background:#fef3c7;
     color:#b45309;
-    max-width:220px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+    cursor:pointer;
 }
 .badge-notes{background:#f1f5f9;color:#475569;}
 
 .mm-address-cell{
     color:#64748b;
-    min-width:180px;
-    max-width:260px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
 }
 
-.mm-contact-cell{display:flex;flex-wrap:wrap;gap:.35rem;min-width:120px;}
+.mm-contact-cell{display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;}
 .mm-contact-badge{
     display:inline-flex;
     align-items:center;
@@ -320,6 +328,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     border-radius:999px;
     text-decoration:none;
     border:1px solid transparent;
+    white-space:nowrap;
 }
 .mm-contact-badge.phone{background:#dcfce7;color:#166534;}
 .mm-contact-badge.email{background:#dbeafe;color:#1e40af;}
@@ -393,7 +402,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     .mm-filter-card{position:static;}
 
     .mm-table-scroll{overflow-x:visible;}
-    .mm-table{min-width:0;}
+    .mm-table{min-width:0;table-layout:auto;}
     .mm-table thead{
         position:absolute;
         width:1px;height:1px;
@@ -440,10 +449,9 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     }
     .mm-provider-name, .mm-loc-badges, .mm-type-badges, .mm-address-cell, .mm-contact-cell{
         min-width:0;
-        justify-content:{% if language == 'ar' %}flex-start{% else %}flex-end{% endif %};
+        align-items:{% if language == 'ar' %}flex-start{% else %}flex-end{% endif %};
     }
-    .mm-address-cell{max-width:none;text-align:{% if language == 'ar' %}left{% else %}right{% endif %};}
-    .badge-speciality{max-width:160px;}
+    .mm-address-cell{-webkit-line-clamp:unset;text-align:{% if language == 'ar' %}left{% else %}right{% endif %};}
 }
 
 @media (max-width:380px){
@@ -570,7 +578,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
         </span>
     </div>
 
-    <!-- TABLE / CARD LIST (becomes cards automatically under 768px, see CSS) -->
+    <!-- TABLE / CARD LIST -->
     <div class="mm-table-card">
         <div class="mm-table-scroll">
             <table class="mm-table">
@@ -616,13 +624,6 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-/**
- * Medical Network Directory (medmark TPA) - EMFA
- * ----------------------------------------------------------------
- * Cascade: country -> city -> type
- * Search covers: provider, speciality, address, phone, mobile, email
- * (speciality is NOT a dropdown filter, only searchable + shown in row/modal)
- */
 const MedicalNetworkDirectory = (function ($) {
     "use strict";
 
@@ -681,18 +682,21 @@ const MedicalNetworkDirectory = (function ($) {
 
     function fillSelect($target, values, keepValue) {
         $target.empty().append('<option value=""></option>');
-        values.forEach(function (v) {
+        (values || []).forEach(function (v) {
             const selected = (keepValue && v === keepValue) ? 'selected' : '';
             $target.append(`<option value="${v}" ${selected}>${v}</option>`);
         });
+        // 🔥 مهم: select2 لازم يتحدّث بعد ما نضيف options جديدة، وإلا القايمة تفضل فاضية شكليًا
         $target.trigger('change.select2');
     }
 
     function resetDownstream(from) {
         const startIdx = CASCADE_ORDER.indexOf(from);
+        if (startIdx === -1) return;
         for (let i = startIdx; i < CASCADE_ORDER.length; i++) {
-            if (i === startIdx) continue;
-            $('#mm-' + CASCADE_ORDER[i]).empty().append('<option value=""></option>').val(null).trigger('change.select2');
+            const $select = $('#mm-' + CASCADE_ORDER[i]);
+            $select.empty().append('<option value=""></option>');
+            $select.val(null).trigger('change.select2');
         }
     }
 
@@ -733,7 +737,10 @@ const MedicalNetworkDirectory = (function ($) {
                 if (options.scrollTop) window.scrollTo({ top: 0, behavior: 'smooth' });
             })
             .fail(function (xhr, status) {
-                if (status !== 'abort') showError();
+                if (status !== 'abort') {
+                    console.error('EMFA filter request failed:', xhr.status, xhr.responseText);
+                    showError();
+                }
             })
             .always(hideSpinner);
     }
@@ -751,8 +758,15 @@ const MedicalNetworkDirectory = (function ($) {
             if (!country) { loadResults(); return; }
             showSpinner();
             $.getJSON(URLS.cities, { country: country })
-                .done(function (data) { fillSelect($('#mm-city'), data.cities || []); loadResults(); })
-                .fail(function () { hideSpinner(); showError(); });
+                .done(function (data) {
+                    fillSelect($('#mm-city'), data.cities);
+                    loadResults();
+                })
+                .fail(function (xhr) {
+                    console.error('get_cities_emfa failed:', xhr.status, xhr.responseText);
+                    hideSpinner();
+                    showError();
+                });
         });
 
         $('#mm-city').on('change', function () {
@@ -761,8 +775,15 @@ const MedicalNetworkDirectory = (function ($) {
             if (!city) { loadResults(); return; }
             showSpinner();
             $.getJSON(URLS.types, { city: city })
-                .done(function (data) { fillSelect($('#mm-type'), data.types || []); loadResults(); })
-                .fail(function () { hideSpinner(); showError(); });
+                .done(function (data) {
+                    fillSelect($('#mm-type'), data.types);
+                    loadResults();
+                })
+                .fail(function (xhr) {
+                    console.error('get_types_emfa failed:', xhr.status, xhr.responseText);
+                    hideSpinner();
+                    showError();
+                });
         });
 
         $('#mm-type').on('change', function () { loadResults(); });

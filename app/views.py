@@ -74,7 +74,6 @@ def apply_filters(queryset, request, fields):
     if speciality:
         queryset = queryset.filter(**{fields['speciality']: speciality})
 
-    # 🔥 CRITICAL: Only search if query length > 2
     if query and len(query) > 2:
         language = get_language()
         queryset = queryset.filter(build_query_filter(query, language))
@@ -115,7 +114,7 @@ def get_cached_filter_options(model, language):
     if not filter_options:
         fields = get_language_fields(language)
         filter_options = get_filter_options(model, fields)
-        cache.set(cache_key, filter_options, 3600)  # Cache for 1 hour
+        cache.set(cache_key, filter_options, 3600)
 
     return filter_options
 
@@ -150,19 +149,10 @@ def render_network_page(request, model, template_name):
     language = get_language()
     fields = get_language_fields(language)
 
-    # 🔥 Get optimized queryset (only needed columns)
     networks = get_optimized_queryset(model, fields)
-
-    # Apply filters
     networks = apply_filters(networks, request, fields)
-
-    # Get pagination
     page_obj, page_range = get_pagination_data(networks, request)
-
-    # 🔥 Get CACHED filter options
     filter_options = get_cached_filter_options(model, language)
-
-    # Get query string
     query_string = get_query_string(request)
 
     context = {
@@ -185,7 +175,6 @@ def get_areas_generic(request, model):
     if not governorate:
         return JsonResponse({'areas': []})
 
-    # 🔥 Cache key includes governorate
     cache_key = f"{model.__name__}_{language}_areas_{governorate}"
     areas = cache.get(cache_key)
 
@@ -197,7 +186,7 @@ def get_areas_generic(request, model):
             **{field: governorate}
         ).values_list(area_field, flat=True).distinct()))
 
-        cache.set(cache_key, areas, 3600)  # Cache for 1 hour
+        cache.set(cache_key, areas, 3600)
 
     return JsonResponse({'areas': areas})
 
@@ -210,7 +199,6 @@ def get_types_generic(request, model):
     if not area:
         return JsonResponse({'types': []})
 
-    # 🔥 Cache key includes area
     cache_key = f"{model.__name__}_{language}_types_{area}"
     types = cache.get(cache_key)
 
@@ -222,7 +210,7 @@ def get_types_generic(request, model):
             **{area_field: area}
         ).values_list(type_field, flat=True).distinct()))
 
-        cache.set(cache_key, types, 3600)  # Cache for 1 hour
+        cache.set(cache_key, types, 3600)
 
     return JsonResponse({'types': types})
 
@@ -246,7 +234,7 @@ def dashboard(request):
             'HORIZON': Networkhorizon.objects.count(),
             'Main Network': Network.objects.count(),
         }
-        cache.set(cache_key, data, 300)  # Cache for 5 minutes
+        cache.set(cache_key, data, 300)
 
     return render(request, 'pages/dashboard.html', {'data': data})
 
@@ -408,6 +396,7 @@ def preauth_view(request):
 
     return render(request, 'pages/preauth.html', {'form': form})
 
+
 # =====================================================================
 #  EMFA
 # =====================================================================
@@ -476,12 +465,17 @@ def get_filter_options_emfa(fields):
 
 
 def get_cached_filter_options_emfa(language):
-    cache_key = f"Networkemfa_{language}_filters_v3"
+    # 🔥 مفتاح جديد (v4) عشان أي كاش قديم فاضي متخزن يتجاهل تلقائيًا
+    cache_key = f"Networkemfa_{language}_filters_v4"
     filter_options = cache.get(cache_key)
-    if not filter_options:
+
+    # 🔥 الشرط ده بيتأكد إن القوائم فعلاً فيها بيانات، مش بس إنها "موجودة" في الكاش
+    # لو الكاش كان مخزن قيم فاضية قديمة ({}[] فاضية) هيعمل إعادة حساب تلقائيًا
+    if not filter_options or not any(filter_options.values()):
         fields = get_language_fields_emfa(language)
         filter_options = get_filter_options_emfa(fields)
         cache.set(cache_key, filter_options, 3600)
+
     return filter_options
 
 
@@ -560,9 +554,9 @@ def get_cities_emfa(request):
     if not country:
         return JsonResponse({'cities': []})
 
-    cache_key = f"Networkemfa_{language}_cities_{country}"
+    cache_key = f"Networkemfa_{language}_cities_{country}_v2"
     cities = cache.get(cache_key)
-    if cities is None:
+    if not cities:
         country_field = 'country_ar' if language == 'ar' else 'country'
         city_field = 'city_ar' if language == 'ar' else 'city'
         cities = sorted(filter(None, Networkemfa.objects.filter(
@@ -579,9 +573,9 @@ def get_types_emfa(request):
     if not city:
         return JsonResponse({'types': []})
 
-    cache_key = f"Networkemfa_{language}_types_{city}"
+    cache_key = f"Networkemfa_{language}_types_{city}_v2"
     types = cache.get(cache_key)
-    if types is None:
+    if not types:
         city_field = 'city_ar' if language == 'ar' else 'city'
         type_field = 'type_ar' if language == 'ar' else 'type'
         types = sorted(filter(None, Networkemfa.objects.filter(
@@ -596,6 +590,13 @@ def get_types_emfa(request):
 
 @staff_member_required
 def clear_language_cache(request):
-    pattern = 'Networkemfa_*_filters*'
-    cache.delete_pattern(pattern)
-    return JsonResponse({'success': True, 'message': 'تم حذف الـ Cache'})
+    """
+    🔥 بيمسح كل الكاش خالص (أضمن حل، يشتغل مع أي cache backend
+    زي LocMemCache أو Redis أو غيرهم، من غير الاعتماد على delete_pattern
+    اللي محتاجة django-redis بالتحديد)
+    """
+    cache.clear()
+    return JsonResponse({
+        'success': True,
+        'message': 'تم حذف الـ Cache بالكامل'
+    })

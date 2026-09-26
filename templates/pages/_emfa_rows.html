@@ -38,9 +38,9 @@
         <div class="mm-type-badges">
             <span class="badge-mm badge-type"><i class="bi bi-hospital-fill"></i> {% if language == 'en' %}{{ network.type }}{% else %}{{ network.type_ar }}{% endif %}</span>
             {% if network.speciality %}
-            <span class="badge-mm badge-speciality" title="{% if language == 'en' %}{{ network.speciality }}{% else %}{{ network.speciality_ar }}{% endif %}">
+            <span class="badge-mm badge-speciality">
                 <i class="bi bi-clipboard2-pulse-fill"></i>
-                {% if language == 'en' %}{{ network.speciality|truncatechars:40 }}{% else %}{{ network.speciality_ar|truncatechars:40 }}{% endif %}
+                {% if language == 'ar' %}اضغط للتفاصيل{% else %}Tap for details{% endif %}
             </span>
             {% endif %}
         </div>
