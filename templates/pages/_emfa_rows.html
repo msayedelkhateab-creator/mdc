@@ -46,9 +46,11 @@
         </div>
     </td>
 
-    <td class="col-hide-md mm-address-cell">
-        <i class="bi bi-geo-alt"></i>
-        {% if language == 'en' %}{{ network.address }}{% else %}{{ network.address_ar }}{% endif %}
+    <td class="col-hide-md">
+        <div class="mm-address-cell">
+            <i class="bi bi-geo-alt"></i>
+            <span>{% if language == 'en' %}{{ network.address }}{% else %}{{ network.address_ar }}{% endif %}</span>
+        </div>
     </td>
 
     <td>
@@ -79,7 +81,10 @@
 
     <td class="col-hide-sm">
         {% if network.notes %}
-        <span class="badge-mm badge-notes"><i class="bi bi-sticky-fill"></i> {% if language == 'ar' %}يوجد{% else %}Yes{% endif %}</span>
+        <div class="mm-notes-cell" title="{{ network.notes }}">
+            <i class="bi bi-chat-left-text-fill"></i>
+            <span>{{ network.notes }}</span>
+        </div>
         {% else %}
         <span class="text-muted small">—</span>
         {% endif %}

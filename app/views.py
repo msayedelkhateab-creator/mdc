@@ -397,9 +397,23 @@ def preauth_view(request):
     return render(request, 'pages/preauth.html', {'form': form})
 
 
+import hashlib
+
+
 # =====================================================================
 #  EMFA
 # =====================================================================
+
+def sort_abc(values):
+    """ترتيب أبجدي (ABC / أ ب ت) مع تجاهل حالة الحروف، وإزالة التكرار والفراغات."""
+    unique = {v.strip() for v in values if v and v.strip()}
+    return sorted(unique, key=lambda s: s.casefold())
+
+
+def get_multi_param(request, name):
+    """بيرجّع قيم متعددة من الـ GET (country=a&country=b) منضّفة"""
+    return [v.strip() for v in request.GET.getlist(name) if v and v.strip()]
+
 
 def get_language_fields_emfa(language):
     if language == 'ar':
@@ -418,34 +432,40 @@ def get_language_fields_emfa(language):
 def build_query_filter_emfa(query, language):
     """البحث العام: provider, speciality, address, phone, mobile, email"""
     query_filter = (
-        Q(provider__icontains=query) |
-        Q(speciality__icontains=query) |
-        Q(address__icontains=query) |
-        Q(phone__icontains=query) |
-        Q(mobile__icontains=query) |
-        Q(email__icontains=query)
+            Q(provider__icontains=query) |
+            Q(speciality__icontains=query) |
+            Q(address__icontains=query) |
+            Q(phone__icontains=query) |
+            Q(mobile__icontains=query) |
+            Q(email__icontains=query)
     )
 
     if language == 'ar':
         query_filter |= (
-            Q(provider_ar__icontains=query) |
-            Q(speciality_ar__icontains=query) |
-            Q(address_ar__icontains=query)
+                Q(provider_ar__icontains=query) |
+                Q(speciality_ar__icontains=query) |
+                Q(address_ar__icontains=query)
         )
 
     return query_filter
 
 
 def apply_filters_emfa(queryset, request, fields):
-    country = request.GET.get('country')
-    city = request.GET.get('city')
+    countries = get_multi_param(request, 'country')
+    cities = get_multi_param(request, 'city')
     type_param = request.GET.get('type')
     query = request.GET.get('query', '').strip()
 
-    if country:
-        queryset = queryset.filter(**{fields['country']: country})
-    if city:
-        queryset = queryset.filter(**{fields['city']: city})
+    if countries:
+        queryset = queryset.filter(**{f"{fields['country']}__in": countries})
+
+    if cities:
+        # contains: "Paris" يجيب "Paris" و "Montreal - Paris" وأي حاجة فيها Paris
+        city_q = Q()
+        for c in cities:
+            city_q |= Q(**{f"{fields['city']}__icontains": c})
+        queryset = queryset.filter(city_q)
+
     if type_param:
         queryset = queryset.filter(**{fields['type']: type_param})
 
@@ -458,25 +478,42 @@ def apply_filters_emfa(queryset, request, fields):
 
 def get_filter_options_emfa(fields):
     return {
-        'countries': sorted(filter(None, Networkemfa.objects.values_list(fields['country'], flat=True).distinct())),
-        'cities': sorted(filter(None, Networkemfa.objects.values_list(fields['city'], flat=True).distinct())),
-        'types': sorted(filter(None, Networkemfa.objects.values_list(fields['type'], flat=True).distinct())),
+        'countries': sort_abc(Networkemfa.objects.values_list(fields['country'], flat=True).distinct()),
+        'cities': sort_abc(Networkemfa.objects.values_list(fields['city'], flat=True).distinct()),
+        'types': sort_abc(Networkemfa.objects.values_list(fields['type'], flat=True).distinct()),
     }
 
 
 def get_cached_filter_options_emfa(language):
-    # 🔥 مفتاح جديد (v4) عشان أي كاش قديم فاضي متخزن يتجاهل تلقائيًا
-    cache_key = f"Networkemfa_{language}_filters_v4"
+    # v5: مفتاح جديد عشان أي كاش قديم (غير مرتب) يتجاهل تلقائيًا
+    cache_key = f"Networkemfa_{language}_filters_v5"
     filter_options = cache.get(cache_key)
 
-    # 🔥 الشرط ده بيتأكد إن القوائم فعلاً فيها بيانات، مش بس إنها "موجودة" في الكاش
-    # لو الكاش كان مخزن قيم فاضية قديمة ({}[] فاضية) هيعمل إعادة حساب تلقائيًا
     if not filter_options or not any(filter_options.values()):
         fields = get_language_fields_emfa(language)
         filter_options = get_filter_options_emfa(fields)
         cache.set(cache_key, filter_options, 3600)
 
     return filter_options
+
+
+def get_cities_for_countries_emfa(language, countries):
+    countries = sort_abc(countries)
+    country_field = 'country_ar' if language == 'ar' else 'country'
+    city_field = 'city_ar' if language == 'ar' else 'city'
+
+    raw = "|".join(countries)
+    key_hash = hashlib.md5(raw.encode('utf-8')).hexdigest()
+    cache_key = f"Networkemfa_{language}_cities_{key_hash}_v4"
+
+    cities = cache.get(cache_key)
+    if cities is None:
+        qs = Networkemfa.objects.all()
+        if countries:
+            qs = qs.filter(**{f"{country_field}__in": countries})
+        cities = sort_abc(qs.values_list(city_field, flat=True).distinct())
+        cache.set(cache_key, cities, 3600)
+    return cities
 
 
 def get_optimized_queryset_emfa():
@@ -504,8 +541,22 @@ def emfa(request):
 
     networks = build_emfa_queryset(request, fields)
     page_obj, page_range = get_pagination_data(networks, request)
-    filter_options = get_cached_filter_options_emfa(language)
+    filter_options = dict(get_cached_filter_options_emfa(language))
     query_string = get_query_string(request)
+
+    selected_countries = get_multi_param(request, 'country')
+    selected_cities = get_multi_param(request, 'city')
+
+    # المدن تتقيّد بالدول المختارة، ولو اليوزر كتب كلمة بحث مخصصة نضيفها للقايمة
+    if selected_countries:
+        cities = list(get_cities_for_countries_emfa(language, selected_countries))
+    else:
+        cities = list(filter_options.get('cities', []))
+
+    custom_cities = [c for c in selected_cities if c not in cities]
+    cities = sort_abc(cities + custom_cities)  # ترتيب أبجدي بعد الدمج
+    filter_options['cities'] = cities
+    filter_options['countries'] = sort_abc(filter_options.get('countries', []))
 
     context = {
         'networks': page_obj,
@@ -513,6 +564,9 @@ def emfa(request):
         'page_range': page_range,
         'language': language,
         'query_string': query_string,
+        'selected_countries': selected_countries,
+        'selected_cities': selected_cities,
+        'custom_cities': custom_cities,
         **filter_options,
     }
     return render(request, 'pages/emfa.html', context)
@@ -550,21 +604,8 @@ def emfa_filter_ajax(request):
 
 def get_cities_emfa(request):
     language = get_language()
-    country = request.GET.get('country')
-    if not country:
-        return JsonResponse({'cities': []})
-
-    cache_key = f"Networkemfa_{language}_cities_{country}_v2"
-    cities = cache.get(cache_key)
-    if not cities:
-        country_field = 'country_ar' if language == 'ar' else 'country'
-        city_field = 'city_ar' if language == 'ar' else 'city'
-        cities = sorted(filter(None, Networkemfa.objects.filter(
-            **{country_field: country}
-        ).values_list(city_field, flat=True).distinct()))
-        cache.set(cache_key, cities, 3600)
-
-    return JsonResponse({'cities': cities})
+    countries = get_multi_param(request, 'country')  # فاضي = كل المدن
+    return JsonResponse({'cities': get_cities_for_countries_emfa(language, countries)})
 
 
 def get_types_emfa(request):
@@ -573,14 +614,14 @@ def get_types_emfa(request):
     if not city:
         return JsonResponse({'types': []})
 
-    cache_key = f"Networkemfa_{language}_types_{city}_v2"
+    cache_key = f"Networkemfa_{language}_types_{city}_v3"
     types = cache.get(cache_key)
     if not types:
         city_field = 'city_ar' if language == 'ar' else 'city'
         type_field = 'type_ar' if language == 'ar' else 'type'
-        types = sorted(filter(None, Networkemfa.objects.filter(
+        types = sort_abc(Networkemfa.objects.filter(
             **{city_field: city}
-        ).values_list(type_field, flat=True).distinct()))
+        ).values_list(type_field, flat=True).distinct())
         cache.set(cache_key, types, 3600)
 
     return JsonResponse({'types': types})
@@ -591,9 +632,8 @@ def get_types_emfa(request):
 @staff_member_required
 def clear_language_cache(request):
     """
-    🔥 بيمسح كل الكاش خالص (أضمن حل، يشتغل مع أي cache backend
-    زي LocMemCache أو Redis أو غيرهم، من غير الاعتماد على delete_pattern
-    اللي محتاجة django-redis بالتحديد)
+    بيمسح كل الكاش خالص (أضمن حل، يشتغل مع أي cache backend
+    زي LocMemCache أو Redis أو غيرهم).
     """
     cache.clear()
     return JsonResponse({

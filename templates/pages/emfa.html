@@ -20,6 +20,7 @@
     --mm-bg:#f4f8fb;
     --mm-radius:14px;
     --mm-green:#22c55e;
+    --mm-field-h:46px;
 }
 *{box-sizing:border-box;}
 html,body{overflow-x:hidden;}
@@ -178,38 +179,124 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     font-size:.95rem;
 }
 .select2-container{width:100% !important;}
-.select2-container .select2-selection--single{
-    height:calc(1.5em + 1.1rem + 2px) !important;
-    border-radius:12px !important;
-    border:1.5px solid #e2e8f0 !important;
-    display:flex;
-    align-items:center;
-    padding:0 .4rem;
-}
-.select2-container--default .select2-selection--single .select2-selection__rendered{
-    line-height:normal !important;
-    padding-{% if language == 'ar' %}right{% else %}left{% endif %}:.4rem;
-}
-.select2-container--default .select2-selection--single .select2-selection__arrow{
-    height:100% !important;
-}
 .select2-dropdown{border-radius:12px;overflow:hidden;border-color:#e2e8f0;}
+
+/* ===== Apply + Reset جنب بعض ===== */
+.mm-actions{display:flex;gap:.5rem;align-items:stretch;}
 .mm-btn-apply{
+    flex:1 1 auto;
     background:linear-gradient(90deg,var(--mm-blue),var(--mm-teal));
     border:none;
     color:#fff;
     font-weight:700;
     border-radius:12px;
-    padding:.6rem 1.4rem;
-    width:100%;
+    padding:0 1.2rem;
+    min-height:var(--mm-field-h);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.4rem;
 }
 .mm-btn-apply:hover{opacity:.92;color:#fff;}
 .mm-btn-apply:active{transform:scale(.98);}
-.mm-btn-reset{border-radius:12px;font-weight:600;padding:.5rem 1.1rem;}
+.mm-btn-reset{
+    border-radius:12px;
+    font-weight:600;
+    padding:0 1rem;
+    min-height:var(--mm-field-h);
+    white-space:nowrap;
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+}
 #mm-spinner{display:none;}
-#mm-spinner.show{display:inline-flex;align-items:center;gap:.4rem;}
+#mm-spinner.show{display:inline-flex;align-items:center;gap:.4rem;margin-top:.45rem;}
 #mm-error{display:none;}
-#mm-error.show{display:flex;}
+#mm-error.show{display:flex;margin-top:.45rem;}
+
+/* اتجاه واضح لـ select2 عشان الكتابة تبدأ من بداية الحقل (شمال في الإنجليزي / يمين في العربي) */
+.select2-container{direction:{% if language == 'ar' %}rtl{% else %}ltr{% endif %};text-align:start;}
+.select2-container--default .select2-selection--multiple .select2-selection__rendered{justify-content:flex-start;text-align:start;}
+.select2-container--default .select2-search--inline .select2-search__field{text-align:start !important;}
+
+/* ===== Select2 Multiple (متوسّط رأسيًا) ===== */
+.select2-container .select2-selection--multiple{
+    min-height:var(--mm-field-h) !important;
+    height:auto !important;
+    border-radius:12px !important;
+    border:1.5px solid #e2e8f0 !important;
+    display:flex !important;
+    flex-wrap:wrap;
+    align-items:center;
+    padding:2px 6px;
+    cursor:text;
+}
+.select2-container--default.select2-container--focus .select2-selection--multiple,
+.select2-container--default.select2-container--open .select2-selection--multiple{
+    border-color:var(--mm-blue) !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__rendered{
+    display:flex !important;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.3rem;
+    flex:0 1 auto;
+    width:auto;
+    max-width:100%;
+    max-height:80px;
+    overflow-y:auto;
+    margin:0;
+    padding:2px;
+    box-sizing:border-box;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    display:inline-flex;
+    align-items:center;
+    float:none;
+    margin:0;
+    background:#e0f2fe;
+    border:none;
+    color:#0369a1;
+    border-radius:999px;
+    font-size:.78rem;
+    font-weight:600;
+    line-height:1.6;
+    padding:.1rem .65rem;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove{
+    position:static;
+    float:none;
+    color:#0369a1;
+    border:none;
+    background:none;
+    margin-inline-end:.35rem;
+    padding:0;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__clear{
+    order:99;
+    float:none;
+    margin:0 .3rem 0 auto;
+    display:inline-flex;
+    align-items:center;
+}
+.select2-container--default .select2-search--inline{
+    display:flex;
+    align-items:center;
+    flex:1 1 70px;
+    float:none;
+    margin:0;
+}
+.select2-container--default .select2-search--inline .select2-search__field{
+    margin:0 !important;
+    height:32px;
+    line-height:32px;
+    padding:0 4px;
+    font-size:.92rem;
+    width:100% !important;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected]{
+    background:var(--mm-blue);
+}
 
 /* ================= RESULT META ================= */
 .mm-result-meta{
@@ -279,7 +366,6 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 }
 .mm-provider-name i{color:var(--mm-blue);margin-top:.15rem;flex-shrink:0;}
 
-/* 🔥 عمودي مش صفي، عشان البادجز تبقى ثابتة الطول ومتسقة دايمًا */
 .mm-loc-badges, .mm-type-badges{
     display:flex;
     flex-direction:column;
@@ -306,16 +392,16 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     color:#b45309;
     cursor:pointer;
 }
-.badge-notes{background:#f1f5f9;color:#475569;}
 
 .mm-address-cell{
+    display:flex;
+    align-items:flex-start;
+    gap:.4rem;
     color:#64748b;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
+    overflow-wrap:anywhere;
+    word-break:break-word;
 }
+.mm-address-cell i{flex-shrink:0;margin-top:.15rem;}
 
 .mm-contact-cell{display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;}
 .mm-contact-badge{
@@ -334,6 +420,59 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 .mm-contact-badge.email{background:#dbeafe;color:#1e40af;}
 .mm-contact-badge.website{background:#ede9fe;color:#5b21b6;}
 .mm-contact-badge:hover{filter:brightness(.95);}
+
+/* ===== Notes ===== */
+.mm-notes-cell{
+    display:flex;
+    align-items:flex-start;
+    gap:.55rem;
+    background:linear-gradient(135deg,#fffbeb,#fef3c7);
+    border:1px solid #fde68a;
+    border-inline-start:4px solid #f59e0b;
+    color:#78350f;
+    border-radius:12px;
+    padding:.6rem .8rem;
+    font-size:.82rem;
+    line-height:1.55;
+    min-width:0;
+    max-width:100%;
+    box-shadow:0 2px 8px rgba(245,158,11,.10);
+}
+.mm-notes-cell i{
+    flex-shrink:0;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:#fff;
+    color:#d97706;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.78rem;
+}
+.mm-notes-cell span{
+    display:-webkit-box;
+    -webkit-line-clamp:4;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    overflow-wrap:anywhere;
+    text-align:start;
+    padding-top:.1rem;
+}
+.mm-multiline{white-space:pre-line;}
+
+/* ===== عرض الأعمدة (الكومنت واخد مساحة أكبر) ===== */
+.mm-table th.c-provider{width:17%;}
+.mm-table th.c-location{width:11%;}
+.mm-table th.c-type{width:12%;}
+.mm-table th.c-address{width:15%;}
+.mm-table th.c-contact{width:15%;}
+.mm-table th.c-notes{width:30%;}
+@media (max-width:992px){
+    .mm-table th.c-provider{width:28%;}
+    .mm-table th.c-location{width:18%;}
+    .mm-table th.c-contact{width:22%;}
+    .mm-table th.c-notes{width:32%;}
+}
 
 .mm-empty{
     text-align:center;
@@ -452,6 +591,8 @@ html[dir="rtl"] .mm-navbar .lang-form select{
         align-items:{% if language == 'ar' %}flex-start{% else %}flex-end{% endif %};
     }
     .mm-address-cell{-webkit-line-clamp:unset;text-align:{% if language == 'ar' %}left{% else %}right{% endif %};}
+    .mm-table td .mm-notes-cell{max-width:70%;}
+    .mm-table td .mm-address-cell{align-items:flex-start;}
 }
 
 @media (max-width:380px){
@@ -485,15 +626,14 @@ html[dir="rtl"] .mm-navbar .lang-form select{
                 <span>19247</span>
                 <span class="badge-247">24/7</span>
             </a>
-
-            <form action="{% url 'set_language' %}" method="post" class="lang-form m-0">
+            <!-- <form action="{% url 'set_language' %}" method="post" class="lang-form m-0">
                 {% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.get_full_path }}">
                 <select name="language" onchange="this.form.submit()" class="form-select form-select-sm">
                     <option value="en" {% if language == 'en' %}selected{% endif %}>🇺🇸 English</option>
                     <option value="ar" {% if language == 'ar' %}selected{% endif %}>🇪🇬 عربي</option>
                 </select>
-            </form>
+            </form> -->
         </div>
     </div>
 </nav>
@@ -507,7 +647,7 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 
     <!-- FILTERS -->
     <form method="get" id="mm-filter-form" class="mm-filter-card">
-        <div class="row g-2 align-items-center">
+        <div class="row g-2 align-items-start">
             <div class="col-12">
                 <div class="search-wrap">
                     <i class="bi bi-search"></i>
@@ -517,24 +657,26 @@ html[dir="rtl"] .mm-navbar .lang-form select{
                 </div>
             </div>
 
-            <div class="col-6 col-md-4 col-lg-3">
-                <select name="country" id="mm-country" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}الدولة{% else %}Country{% endif %}">
-                    <option value=""></option>
+            <div class="col-12 col-md-6 col-lg-4">
+                <select name="country" id="mm-country" class="form-select mm-select" multiple
+                        data-placeholder="{% if language == 'ar' %}الدولة (يمكن اختيار أكثر من واحدة){% else %}Country (multiple){% endif %}">
                     {% for c in countries %}
-                        <option value="{{ c }}" {% if request.GET.country == c %}selected{% endif %}>{{ c }}</option>
+                        <option value="{{ c }}" {% if c in selected_countries %}selected{% endif %}>{{ c }}</option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="col-6 col-md-4 col-lg-3">
-                <select name="city" id="mm-city" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}المدينة{% else %}City{% endif %}">
-                    <option value=""></option>
+            <div class="col-12 col-md-6 col-lg-4">
+                <select name="city" id="mm-city" class="form-select mm-select" multiple
+                        data-placeholder="{% if language == 'ar' %}المدينة (اكتب أي جزء من الاسم){% else %}City (type any part of the name){% endif %}">
                     {% for c in cities %}
-                        <option value="{{ c }}" {% if request.GET.city == c %}selected{% endif %}>{{ c }}</option>
+                        <option value="{{ c }}" {% if c in selected_cities %}selected{% endif %} {% if c in custom_cities %}data-custom="1"{% endif %}>{{ c }}</option>
                     {% endfor %}
                 </select>
             </div>
 
+            {% comment %}
+            TYPE (متعطل زي ما هو)
             <div class="col-6 col-md-4 col-lg-3">
                 <select name="type" id="mm-type" class="form-select mm-select" data-placeholder="{% if language == 'ar' %}النوع{% else %}Type{% endif %}">
                     <option value=""></option>
@@ -543,27 +685,28 @@ html[dir="rtl"] .mm-navbar .lang-form select{
                     {% endfor %}
                 </select>
             </div>
+            {% endcomment %}
 
-            <div class="col-6 col-lg-3">
-                <button type="submit" class="mm-btn-apply">
-                    <i class="bi bi-funnel-fill"></i>
-                    {% if language == 'ar' %}تصفية{% else %}Apply{% endif %}
-                </button>
+            <div class="col-12 col-lg-4">
+                <div class="mm-actions">
+                    <button type="submit" class="mm-btn-apply">
+                        <i class="bi bi-funnel-fill"></i>
+                        {% if language == 'ar' %}تصفية{% else %}Apply{% endif %}
+                    </button>
+                    <a href="{% url 'emfa' %}" class="btn btn-outline-secondary mm-btn-reset">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        {% if language == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
+                    </a>
+                </div>
+                <span id="mm-spinner" class="text-primary small">
+                    <span class="spinner-border spinner-border-sm"></span>
+                    {% if language == 'ar' %}جاري التحديث...{% else %}Updating...{% endif %}
+                </span>
+                <span id="mm-error" class="text-danger small align-items-center gap-1">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    {% if language == 'ar' %}حدث خطأ، حاول تاني{% else %}Something went wrong, try again{% endif %}
+                </span>
             </div>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
-            <a href="{% url 'emfa' %}" class="btn btn-outline-secondary btn-sm mm-btn-reset">
-                <i class="bi bi-arrow-counterclockwise"></i>
-                {% if language == 'ar' %}إعادة تعيين الكل{% else %}Reset all{% endif %}
-            </a>
-            <span id="mm-spinner" class="text-primary small">
-                <span class="spinner-border spinner-border-sm"></span>
-                {% if language == 'ar' %}جاري التحديث...{% else %}Updating...{% endif %}
-            </span>
-            <span id="mm-error" class="text-danger small align-items-center gap-1">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                {% if language == 'ar' %}حدث خطأ، حاول تاني{% else %}Something went wrong, try again{% endif %}
-            </span>
         </div>
     </form>
 
@@ -584,12 +727,12 @@ html[dir="rtl"] .mm-navbar .lang-form select{
             <table class="mm-table">
                 <thead>
                     <tr>
-                        <th>{% if language == 'ar' %}مقدم الخدمة{% else %}Provider{% endif %}</th>
-                        <th class="col-hide-sm">{% if language == 'ar' %}الموقع{% else %}Location{% endif %}</th>
-                        <th class="col-hide-md">{% if language == 'ar' %}النوع / التخصص{% else %}Type / Speciality{% endif %}</th>
-                        <th class="col-hide-md">{% if language == 'ar' %}العنوان{% else %}Address{% endif %}</th>
-                        <th>{% if language == 'ar' %}التواصل{% else %}Contact{% endif %}</th>
-                        <th class="col-hide-sm">{% if language == 'ar' %}ملاحظات{% else %}Comments{% endif %}</th>
+                        <th class="c-provider">{% if language == 'ar' %}مقدم الخدمة{% else %}Provider{% endif %}</th>
+                        <th class="c-location col-hide-sm">{% if language == 'ar' %}الموقع{% else %}Location{% endif %}</th>
+                        <th class="c-type col-hide-md">{% if language == 'ar' %}النوع / التخصص{% else %}Type / Speciality{% endif %}</th>
+                        <th class="c-address col-hide-md">{% if language == 'ar' %}العنوان{% else %}Address{% endif %}</th>
+                        <th class="c-contact">{% if language == 'ar' %}التواصل{% else %}Contact{% endif %}</th>
+                        <th class="c-notes col-hide-sm">{% if language == 'ar' %}ملاحظات{% else %}Comments{% endif %}</th>
                     </tr>
                 </thead>
                 <tbody id="mm-table-body">
@@ -627,20 +770,22 @@ html[dir="rtl"] .mm-navbar .lang-form select{
 const MedicalNetworkDirectory = (function ($) {
     "use strict";
 
-    const LANG = "{{ language }}";
-    const IS_AR = LANG === "ar";
+    const IS_AR = "{{ language }}" === "ar";
+    const LOCALE = IS_AR ? 'ar' : 'en';
 
     const URLS = {
         cities: "{% url 'get_cities_emfa' %}",
-        types: "{% url 'get_types_emfa' %}",
+        types: "{% url 'get_types_emfa' %}",   // متعطل حاليًا
         filter: "{% url 'emfa_filter_ajax' %}"
     };
 
-    const CASCADE_ORDER = ['city', 'type'];
-
     let $el = {};
     let searchDebounceTimer = null;
+    let cityTimer = null;
     let activeRequest = null;
+    let citiesRequest = null;
+    let pendingCityText = '';
+    const customCities = new Set();   // كلمات بحث كتبها اليوزر (بتدور بـ contains)
 
     function debounce(fn, delay) {
         return function (...args) {
@@ -649,10 +794,19 @@ const MedicalNetworkDirectory = (function ($) {
         };
     }
 
+    // ترتيب أبجدي (ABC / أ ب ت) مع تجاهل حالة الحروف
+    function sortAbc(arr) {
+        return arr.slice().sort(function (a, b) {
+            return a.localeCompare(b, LOCALE, { sensitivity: 'base' });
+        });
+    }
+
     function cacheDom() {
         $el = {
             form: $('#mm-filter-form'),
             search: $('#mm-search'),
+            country: $('#mm-country'),
+            city: $('#mm-city'),
             spinner: $('#mm-spinner'),
             error: $('#mm-error'),
             tableBody: $('#mm-table-body'),
@@ -668,36 +822,134 @@ const MedicalNetworkDirectory = (function ($) {
     }
 
     function initSelect2() {
-        $('.mm-select').select2({
-            width: '100%',
-            dir: IS_AR ? 'rtl' : 'ltr',
-            allowClear: true,
-            placeholder: function () { return $(this).data('placeholder'); }
+        const dir = IS_AR ? 'rtl' : 'ltr';
+
+        $el.country.select2({
+            width: '100%', dir: dir, allowClear: true, closeOnSelect: false,
+            placeholder: $el.country.data('placeholder')
         });
+
+        $el.city.select2({
+            width: '100%', dir: dir, allowClear: true, closeOnSelect: false,
+            placeholder: $el.city.data('placeholder'),
+            tags: true,
+            // اكتب "باريس" واختارها => بتجيب كل اللي فيه باريس (contains)
+            createTag: function (params) {
+                const term = $.trim(params.term);
+                if (term.length < 2) return null;
+                // لو فيه مدينة بنفس الاسم والحروف بالظبط، الاختيار العادي بيغطيها (والسيرفر أصلاً contains)
+                const exact = $el.city.find('option').filter(function () {
+                    return $(this).val() === term;
+                }).length;
+                if (exact) return null;
+                // بنعدّ كام مدينة فيها الكلمة دي عشان نعرضه للمستخدم
+                const low = term.toLowerCase();
+                const count = $el.city.find('option').filter(function () {
+                    return $(this).text().toLowerCase().indexOf(low) !== -1;
+                }).length;
+                return { id: term, text: term, isCustom: true, matchCount: count };
+            },
+            templateResult: function (data) {
+                if (!data.isCustom) return data.text;
+                const label = (IS_AR ? 'كل المدن اللي فيها: ' : 'All cities containing: ') + data.text
+                            + (data.matchCount ? ' (' + data.matchCount + ')' : '');
+                return $('<span style="font-weight:700;"></span>').text(label);
+            }
+        });
+
+        // الكلمات المخصصة اللي جاية من الـ URL
+        $el.city.find('option[data-custom]').each(function () { customCities.add($(this).val()); });
+
+        $el.city.on('select2:select', function (e) {
+            pendingCityText = '';
+            if (e.params.data && e.params.data.isCustom) customCities.add(e.params.data.id);
+        });
+        $el.city.on('select2:unselect select2:clear', function () { pendingCityText = ''; });
+
+        // أي اختيار بالماوس/الأسهم يطبّق الفلتر فورًا
+        $el.city.on('select2:select', function () {
+            clearTimeout(cityTimer);
+            cityTimer = setTimeout(function () { loadResults(); }, 150);
+        });
+
+        // نحتفظ باللي اليوزر كتبه حتى لو داس Apply من غير ما يختار
+        const s2 = $el.city.data('select2');
+        if (s2 && s2.selection && s2.selection.$search) {
+            s2.selection.$search.on('input.mmpending', function () {
+                pendingCityText = $.trim($(this).val());
+            });
+        }
+    }
+
+    // Enter داخل بحث المدينة: يثبّت الكلمة المكتوبة كـ "contains" ويطبّق الفلتر فورًا
+    // (لو المستخدم اختار بالأسهم، الاختيار بيتم عادي والفلتر بيتطبق)
+    function bindCityEnter() {
+        const container = $el.city.next('.select2-container')[0];
+        if (!container) return;
+        let arrowUsed = false;
+
+        function isSearch(e) {
+            return e.target && e.target.classList && e.target.classList.contains('select2-search__field');
+        }
+
+        container.addEventListener('keydown', function (e) {
+            if (!isSearch(e)) return;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { arrowUsed = true; return; }
+            if (e.key !== 'Enter') return;
+
+            const term = $.trim(e.target.value);
+            if (arrowUsed && term) { arrowUsed = false; return; }   // select2 يختار العنصر المظلل
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            pendingCityText = term;
+            commitPendingCity();
+            $el.city.select2('close');
+            clearTimeout(cityTimer);
+            loadResults();
+        }, true);
+
+        container.addEventListener('input', function (e) {
+            if (isSearch(e)) arrowUsed = false;
+        }, true);
+    }
+
+    function commitPendingCity() {
+        const term = pendingCityText;
+        pendingCityText = '';
+        if (!term || term.length < 2) return;
+
+        let found = null;
+        $el.city.find('option').each(function () {
+            if ($(this).val().toLowerCase() === term.toLowerCase()) { found = $(this).val(); return false; }
+        });
+        if (found === null) {
+            $el.city.append(new Option(term, term, false, false));
+            found = term;
+            customCities.add(term);
+        }
+        const cur = $el.city.val() || [];
+        if (cur.indexOf(found) === -1) cur.push(found);
+        $el.city.val(cur).trigger('change.select2');
+
+        const s2 = $el.city.data('select2');
+        if (s2 && s2.selection && s2.selection.$search) s2.selection.$search.val('');
     }
 
     function showSpinner() { $el.error.removeClass('show'); $el.spinner.addClass('show'); }
     function hideSpinner() { $el.spinner.removeClass('show'); }
     function showError() { $el.error.addClass('show'); }
 
-    function fillSelect($target, values, keepValue) {
-        $target.empty().append('<option value=""></option>');
-        (values || []).forEach(function (v) {
-            const selected = (keepValue && v === keepValue) ? 'selected' : '';
-            $target.append(`<option value="${v}" ${selected}>${v}</option>`);
+    function fillSelect($target, values, keepValues) {
+        const keep = keepValues || [];
+        $target.empty();
+        sortAbc(values || []).forEach(function (v) {
+            const $opt = $('<option>').val(v).text(v);
+            if (keep.indexOf(v) !== -1) $opt.prop('selected', true);
+            if (customCities.has(v)) $opt.attr('data-custom', '1');
+            $target.append($opt);
         });
-        // 🔥 مهم: select2 لازم يتحدّث بعد ما نضيف options جديدة، وإلا القايمة تفضل فاضية شكليًا
         $target.trigger('change.select2');
-    }
-
-    function resetDownstream(from) {
-        const startIdx = CASCADE_ORDER.indexOf(from);
-        if (startIdx === -1) return;
-        for (let i = startIdx; i < CASCADE_ORDER.length; i++) {
-            const $select = $('#mm-' + CASCADE_ORDER[i]);
-            $select.empty().append('<option value=""></option>');
-            $select.val(null).trigger('change.select2');
-        }
     }
 
     function applyResponsiveLabels() {
@@ -715,8 +967,7 @@ const MedicalNetworkDirectory = (function ($) {
     }
 
     function replaceUrl(params) {
-        const newUrl = window.location.pathname + '?' + params;
-        window.history.replaceState({}, '', newUrl);
+        window.history.replaceState({}, '', window.location.pathname + '?' + params);
     }
 
     function loadResults(options) {
@@ -752,46 +1003,42 @@ const MedicalNetworkDirectory = (function ($) {
     }
 
     function bindCascadeFilters() {
-        $('#mm-country').on('change', function () {
-            const country = $(this).val();
-            resetDownstream('city');
-            if (!country) { loadResults(); return; }
+        // الدول (متعدد) -> تحديث قايمة المدن
+        $el.country.on('change', function () {
+            const countries = $el.country.val() || [];
+            const prev = $el.city.val() || [];
             showSpinner();
-            $.getJSON(URLS.cities, { country: country })
+
+            if (citiesRequest) citiesRequest.abort();
+            citiesRequest = $.ajax({
+                url: URLS.cities, data: { country: countries }, traditional: true, dataType: 'json'
+            })
                 .done(function (data) {
-                    fillSelect($('#mm-city'), data.cities);
+                    const list = data.cities || [];
+                    const keep = prev.filter(v => list.indexOf(v) !== -1 || customCities.has(v));
+                    const merged = list.concat(keep.filter(v => list.indexOf(v) === -1));
+                    fillSelect($el.city, merged, keep);   // fillSelect بترتّب أبجديًا
                     loadResults();
                 })
-                .fail(function (xhr) {
+                .fail(function (xhr, status) {
+                    if (status === 'abort') return;
                     console.error('get_cities_emfa failed:', xhr.status, xhr.responseText);
                     hideSpinner();
                     showError();
                 });
         });
 
-        $('#mm-city').on('change', function () {
-            const city = $(this).val();
-            resetDownstream('type');
-            if (!city) { loadResults(); return; }
-            showSpinner();
-            $.getJSON(URLS.types, { city: city })
-                .done(function (data) {
-                    fillSelect($('#mm-type'), data.types);
-                    loadResults();
-                })
-                .fail(function (xhr) {
-                    console.error('get_types_emfa failed:', xhr.status, xhr.responseText);
-                    hideSpinner();
-                    showError();
-                });
+        // المدن (متعدد) -> تحديث النتايج (Type متعطل)
+        $el.city.on('change', function () {
+            clearTimeout(cityTimer);
+            cityTimer = setTimeout(function () { loadResults(); }, 300);
         });
-
-        $('#mm-type').on('change', function () { loadResults(); });
     }
 
     function bindSearchAndForm() {
         $el.form.on('submit', function (e) {
             e.preventDefault();
+            commitPendingCity();
             loadResults();
         });
 
@@ -829,7 +1076,7 @@ const MedicalNetworkDirectory = (function ($) {
             { icon: 'phone-fill', label: IS_AR ? 'الموبايل' : 'Mobile', val: d.mobile || '' },
             { icon: 'envelope-fill', label: 'Email', val: d.email || '' },
             { icon: 'globe2', label: IS_AR ? 'الموقع' : 'Website', val: d.website || '' },
-            { icon: 'sticky-fill', label: IS_AR ? 'ملاحظات' : 'Notes', val: d.notes || '' }
+            { icon: 'sticky-fill', label: IS_AR ? 'ملاحظات' : 'Notes', val: d.notes || '', multiline: true }
         ];
     }
 
@@ -845,7 +1092,7 @@ const MedicalNetworkDirectory = (function ($) {
                 if (!r.val) return;
                 bodyHtml += `<div class="mm-modal-row">
                     <i class="bi bi-${r.icon}"></i>
-                    <div><span class="lbl">${r.label}:</span> <span class="val">${escapeHtml(r.val)}</span></div>
+                    <div><span class="lbl">${r.label}:</span> <span class="val ${r.multiline ? 'mm-multiline' : ''}">${escapeHtml(String(r.val))}</span></div>
                 </div>`;
             });
             $el.modalBody.html(bodyHtml);
@@ -864,6 +1111,7 @@ const MedicalNetworkDirectory = (function ($) {
     function init() {
         cacheDom();
         initSelect2();
+        bindCityEnter();
         applyResponsiveLabels();
         bindCascadeFilters();
         bindSearchAndForm();
