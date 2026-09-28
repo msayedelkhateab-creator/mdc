@@ -399,6 +399,9 @@ def preauth_view(request):
 
 import hashlib
 
+# ضيف ده مع الـ imports اللي فوق في views.py (لو مش موجود):
+import hashlib
+from django.db.models.functions import Trim
 
 # =====================================================================
 #  EMFA
@@ -432,19 +435,19 @@ def get_language_fields_emfa(language):
 def build_query_filter_emfa(query, language):
     """البحث العام: provider, speciality, address, phone, mobile, email"""
     query_filter = (
-            Q(provider__icontains=query) |
-            Q(speciality__icontains=query) |
-            Q(address__icontains=query) |
-            Q(phone__icontains=query) |
-            Q(mobile__icontains=query) |
-            Q(email__icontains=query)
+        Q(provider__icontains=query) |
+        Q(speciality__icontains=query) |
+        Q(address__icontains=query) |
+        Q(phone__icontains=query) |
+        Q(mobile__icontains=query) |
+        Q(email__icontains=query)
     )
 
     if language == 'ar':
         query_filter |= (
-                Q(provider_ar__icontains=query) |
-                Q(speciality_ar__icontains=query) |
-                Q(address_ar__icontains=query)
+            Q(provider_ar__icontains=query) |
+            Q(speciality_ar__icontains=query) |
+            Q(address_ar__icontains=query)
         )
 
     return query_filter
@@ -457,7 +460,8 @@ def apply_filters_emfa(queryset, request, fields):
     query = request.GET.get('query', '').strip()
 
     if countries:
-        queryset = queryset.filter(**{f"{fields['country']}__in": countries})
+        # Trim: في الداتا فيه قيم زي "Egypt " (بمسافة في الآخر)، فبنقارن بعد التنضيف
+        queryset = queryset.annotate(_country_clean=Trim(fields['country'])).filter(_country_clean__in=countries)
 
     if cities:
         # contains: "Paris" يجيب "Paris" و "Montreal - Paris" وأي حاجة فيها Paris
@@ -510,7 +514,7 @@ def get_cities_for_countries_emfa(language, countries):
     if cities is None:
         qs = Networkemfa.objects.all()
         if countries:
-            qs = qs.filter(**{f"{country_field}__in": countries})
+            qs = qs.annotate(_country_clean=Trim(country_field)).filter(_country_clean__in=countries)
         cities = sort_abc(qs.values_list(city_field, flat=True).distinct())
         cache.set(cache_key, cities, 3600)
     return cities
@@ -554,7 +558,7 @@ def emfa(request):
         cities = list(filter_options.get('cities', []))
 
     custom_cities = [c for c in selected_cities if c not in cities]
-    cities = sort_abc(cities + custom_cities)  # ترتيب أبجدي بعد الدمج
+    cities = sort_abc(cities + custom_cities)   # ترتيب أبجدي بعد الدمج
     filter_options['cities'] = cities
     filter_options['countries'] = sort_abc(filter_options.get('countries', []))
 
@@ -604,7 +608,7 @@ def emfa_filter_ajax(request):
 
 def get_cities_emfa(request):
     language = get_language()
-    countries = get_multi_param(request, 'country')  # فاضي = كل المدن
+    countries = get_multi_param(request, 'country')   # فاضي = كل المدن
     return JsonResponse({'cities': get_cities_for_countries_emfa(language, countries)})
 
 
@@ -619,9 +623,9 @@ def get_types_emfa(request):
     if not types:
         city_field = 'city_ar' if language == 'ar' else 'city'
         type_field = 'type_ar' if language == 'ar' else 'type'
-        types = sort_abc(Networkemfa.objects.filter(
-            **{city_field: city}
-        ).values_list(type_field, flat=True).distinct())
+        types = sort_abc(Networkemfa.objects.annotate(
+            _city_clean=Trim(city_field)
+        ).filter(_city_clean=city).values_list(type_field, flat=True).distinct())
         cache.set(cache_key, types, 3600)
 
     return JsonResponse({'types': types})
