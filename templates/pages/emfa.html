@@ -298,6 +298,32 @@ html[dir="rtl"] .mm-navbar .lang-form select{
     background:var(--mm-blue);
 }
 
+/* ================= ADMISSION NOTE ================= */
+.mm-admission-note{
+    display:flex;
+    align-items:flex-start;
+    gap:.7rem;
+    background:linear-gradient(135deg,#f0f9ff,#e0f2fe);
+    border:1px solid #bae6fd;
+    border-inline-start:4px solid var(--mm-blue);
+    color:#0c4a6e;
+    border-radius:var(--mm-radius);
+    padding:.8rem 1rem;
+    margin:0 auto 1.2rem;
+    font-size:.88rem;
+    line-height:1.6;
+    box-shadow:0 2px 8px rgba(14,165,233,.08);
+    direction:ltr;
+    text-align:left;
+}
+.mm-admission-note i{
+    flex-shrink:0;
+    color:var(--mm-blue-dark);
+    font-size:1.1rem;
+    margin-top:.1rem;
+}
+.mm-admission-note p{margin:0;}
+
 /* ================= RESULT META ================= */
 .mm-result-meta{
     display:flex;
@@ -709,6 +735,16 @@ html[dir="rtl"] .mm-navbar .lang-form select{
             </div>
         </div>
     </form>
+
+    <!-- ADMISSION NOTE -->
+    <div class="mm-admission-note" role="note">
+        <i class="bi bi-info-circle-fill"></i>
+        <p>
+            For any planned admission, the medical report should be shared with Medmark/MSH one week prior to the planned treatment date. This allows us to coordinate with the facility in advance and ensure that a GOP can be issued for the planned admission, where applicable.
+            <br><br>
+            Please use the provider list below to find facilities for inpatient treatment.
+        </p>
+    </div>
 
     <div class="mm-result-meta">
         <span>

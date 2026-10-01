@@ -1,4 +1,4 @@
-#python manage.py import_network "C:\Users\ABC\Downloads\Network-2026-09-01.xlsx"
+#python manage.py import_network "C:\Users\ABC\Downloads\Network-2026-09-29.xlsx"
 from django.core.management.base import BaseCommand
 import pandas as pd
 from app.models import Network # ← عدّل اسم الـ app لو مختلف
